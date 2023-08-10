@@ -17,21 +17,24 @@ void Printer::print_as_list(const std::string& dir,
         if (options->sort)
         {
             if (dir_entry.is_directory())
-                dirs.push_back(in::cut_quotas(dir_entry.path().filename().string()));
+                dirs.push_back(in::cut_quotas(dir_entry.path().filename().string())+"/");
             else
                 files.push_back(in::cut_quotas(dir_entry.path().filename().string()));
         }
         else
         {
-            std::cout << in::cut_quotas(dir_entry.path().filename().string()) << std::endl;
+            auto entry_val = dir_entry.path().filename().string();
+            if (options->show_only_dirs and dir_entry.is_directory())
+                std::cout << entry_val+"/" << std::endl;
+            else if (options->show_only_files and !dir_entry.is_directory())
+                std::cout << entry_val << std::endl;
         }
     }
 
 
     if (options->sort)
     {
-        auto print = std::for_each(dirs.begin(), dirs.end(),
-            [](const auto& arg) {std::cout << arg << std::endl; });
+        auto print = [](const auto& arg) {std::cout << arg << std::endl; };
         for (auto& ch : options->sorting_order)
         {
             if (ch == 'd')
