@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 struct Options
 {
-	bool sort;
+	bool sort, recursive;
 	std::string sorting_order; //fd or df
 
 	bool show_only_dirs, show_only_files;
@@ -46,13 +46,14 @@ struct Options
 		show_as_table   = false;
 
 		sort = false;
+		recursive = false;
 	}
 	~Options() {}
 };
 
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -88,6 +89,7 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-m") options->show_as_table = true;//m means matrix
 		else if (arg == "-t") options->show_as_tree = true;
 		else if (arg == "-s")options->sort = true;
+		else if (arg == "-r")options->recursive = true;
 		else
 		{
 			std::cout << "Error:" << arg << " is unknown argument! Try using -h to see help!" << std::endl;
