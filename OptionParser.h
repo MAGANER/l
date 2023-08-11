@@ -14,6 +14,8 @@ struct Options
 	bool show_as_list, show_as_tree, show_as_table; //only one variable must be true
 	std::string dir; //it's current working directory by default
 
+	size_t table_output_width = 4; //default value
+
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
@@ -71,11 +73,6 @@ static Options* parse_args(int argc, char** argv)
 		if (fs::is_directory(arg))
 		{
 			options->dir = arg;
-		}
-		else if (not is_option(arg))
-		{
-			std::cout << "Error:" << arg << " is expected to be a directory!" << std::endl;
-			exit(-1);
 		}
 		else if (arg == "-d")
 		{
