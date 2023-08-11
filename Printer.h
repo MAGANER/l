@@ -30,10 +30,13 @@ namespace PrinterInnerFn
 		return entry_val;
 	};
 
+
+	//this function type is dedicated for regular iterating without sorting
 	typedef std::function<void(const fs::directory_entry& dir_entry,
 							   std::list<std::string>& dirs,
 							   std::list<std::string>& files)> fn;
 
+	//this one dedicated for iteration over sorted data
 	typedef std::function<void(std::list<std::string>& dirs,
 								std::list<std::string>& files)> fn1;
 

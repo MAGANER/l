@@ -41,6 +41,8 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options const* options,
         iterate_sorted(dirs, files);
 }
 
+
+
 void Printer::print_as_list(const Options const* options)
 {
     
