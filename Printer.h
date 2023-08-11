@@ -3,6 +3,8 @@
 #include"OptionParser.h"
 #include<list>
 
+//namespace contains functions used by Printer's namespace ones
+//they aren't dedicated to be used out of Printer namespace
 namespace PrinterInnerFn
 {
 	extern inline std::string cut_quotas(const std::string& str);
