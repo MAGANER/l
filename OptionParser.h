@@ -16,6 +16,8 @@ struct Options
 
 	size_t table_output_width = 4; //default value
 
+	short dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
+
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
