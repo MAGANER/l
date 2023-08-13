@@ -4,6 +4,7 @@
 #include"Colorizer.h"
 #include<list>
 #include<functional>
+#include<sstream>
 
 //namespace contains functions used by Printer's namespace ones
 //they aren't dedicated to be used out of Printer namespace
@@ -69,6 +70,9 @@ namespace PrinterInnerFn
 
 	extern size_t get_max_dir_str_size(const std::string& dir,const Options const* options);
 	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options const* options);
+	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options const* options);
+	extern size_t get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options const* options);
+	extern void show_permissions(const std::string& entry);
 }
 namespace Printer
 {
