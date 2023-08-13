@@ -59,7 +59,10 @@ namespace PrinterInnerFn
 		double mantissa = hr.size;
 		for (; mantissa >= 1024.; mantissa /= 1024., ++i) {}
 		mantissa = std::ceil(mantissa * 10.) / 10.;
-		os << mantissa << "BKMGTPE"[i];
+
+		auto size_type = "BKMGTPE"[i];
+		auto additional_data = size_type != 'B' ? "b" : "";
+		os << mantissa << size_type<<additional_data;
 		return os;
 	}
 	};
