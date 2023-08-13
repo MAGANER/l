@@ -18,6 +18,8 @@ struct Options
 
 	short dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
 
+	bool show_file_size;
+
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
@@ -49,13 +51,22 @@ struct Options
 
 		sort = false;
 		recursive = false;
+		show_file_size = false;
 	}
 	~Options() {}
 };
 
+static inline void disable_options(Options* options)
+{
+	//disable modes that aren't suitable to show information such as file sizes
+	// permissions, e.t.c
+	options->show_as_list = true;
+	options->show_as_tree = false;
+	options->show_as_table = false;
+}
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -92,6 +103,11 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-t") options->show_as_tree = true;
 		else if (arg == "-s")options->sort = true;
 		else if (arg == "-r")options->recursive = true;
+		else if (arg == "-S")
+		{
+			options->show_file_size = true;
+			disable_options(options);
+		}
 		else
 		{
 			std::cout << "Error:" << arg << " is unknown argument! Try using -h to see help!" << std::endl;

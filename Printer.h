@@ -48,6 +48,24 @@ namespace PrinterInnerFn
 	extern void iterate_over_dir_recursively(const Options const* options,
 		const fn& iterate,
 		const fn1& iterate_sorted);
+
+
+	//https://en.cppreference.com/w/cpp/filesystem/file_size
+	struct HumanReadable {
+		std::uintmax_t size{};
+	private: friend
+		std::ostream& operator<<(std::ostream& os, HumanReadable hr) {
+		int i{};
+		double mantissa = hr.size;
+		for (; mantissa >= 1024.; mantissa /= 1024., ++i) {}
+		mantissa = std::ceil(mantissa * 10.) / 10.;
+		os << mantissa << "BKMGTPE"[i];
+		return os;
+	}
+	};
+
+	extern size_t get_max_dir_str_size(const std::string& dir,const Options const* options);
+	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options const* options);
 }
 namespace Printer
 {

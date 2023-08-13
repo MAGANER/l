@@ -40,27 +40,48 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options const* options,
     if (options->sort)
         iterate_sorted(dirs, files);
 }
+size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options const* options)
+{
+    std::vector<size_t> sizes;
+    for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
+    {
+        sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
+    }
 
+    return *std::max_element(sizes.begin(), sizes.end());
+}
+size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, const Options const* options)
+{
+    std::vector<size_t> sizes;
+    for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
+    {
+        sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
+    }
 
+    return *std::max_element(sizes.begin(), sizes.end());
+}
 
 void Printer::print_as_list(const Options const* options)
 {
-    
-
     auto iterate = [&](const fs::directory_entry& dir_entry,
         std::list<std::string>& dirs,
         std::list<std::string>& files)
     {
         namespace in = PrinterInnerFn;
-       
+
+        size_t max_size = options->show_file_size ?
+            options->recursive ? in::get_max_dir_str_size_recursivly(options->dir, options) :
+            in::get_max_dir_str_size(options->dir, options) : 1;
+
         auto entry_val = in::prepare_entry_val(dir_entry, options);
         //if shouldn't sort just print
         if (options->sort)
         {
             if (dir_entry.is_directory())
-                dirs.push_back(in::cut_quotas(entry_val) + "/");
+                dirs.push_back(colorize(in::cut_quotas(entry_val) + "/",options->dir_color,options->dir_bg_color));
             else
-                files.push_back(in::cut_quotas(entry_val));
+                files.push_back(colorize(in::cut_quotas(entry_val), options->file_color, options->file_bg_color));
+                
         }
         else
         {
@@ -70,7 +91,16 @@ void Printer::print_as_list(const Options const* options)
             }
             else if (options->show_only_files and !dir_entry.is_directory())
             {
-                std::cout << colorize(entry_val,options->file_color,options->file_bg_color) << std::endl;
+                auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
+                std::cout << colorize(entry_val, 
+                                      options->file_color, 
+                                      options->file_bg_color) 
+                     << in::mult_str(" ",mult_val);
+
+                if (options->show_file_size)
+                    std::cout << in::HumanReadable{fs::file_size(dir_entry)} << std::endl;
+                else
+                    std::cout << std::endl;
             }
         }
     };
@@ -78,23 +108,27 @@ void Printer::print_as_list(const Options const* options)
     auto iterate_sorted = [&](std::list<std::string>& dirs,
                              std::list<std::string>& files)
     {
-        bool dir = false;
+        namespace in = PrinterInnerFn;
+        size_t max_size = options->show_file_size ?
+            options->recursive ? in::get_max_dir_str_size_recursivly(options->dir, options) :
+            in::get_max_dir_str_size(options->dir, options) : 1;
+       
+        bool show_size = false;
         auto print = [&](const auto& arg) 
-        {
-            auto val = dir ? colorize(arg, options->dir_color, options->dir_bg_color) :
-                colorize(arg, options->file_color, options->file_bg_color);
-            std::cout <<val << std::endl; 
+        { 
+            auto mult_val = max_size == 1 ? 1 : (max_size - arg.size()) + 1;
+            std::cout <<arg << PrinterInnerFn::mult_str(" ",max_size);
+            if (options->show_file_size and show_size)
+                std::cout << PrinterInnerFn::HumanReadable{fs::file_size(arg)} << std::endl;
+            else std::cout << std::endl;
         };
         for (auto& ch : options->sorting_order)
         {
             if (ch == 'd')
-            {
-                dir = true;
                 std::for_each(dirs.begin(), dirs.end(), print);
-            }
             if (ch == 'f')
             {
-                dir = false;
+                show_size = true;
                 std::for_each(files.begin(), files.end(), print);
             }
         }
@@ -109,7 +143,6 @@ void Printer::print_as_list(const Options const* options)
 
 
 }
-
 void Printer::print_as_table(const Options const* options)
 {
     size_t counter = 0;
