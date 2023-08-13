@@ -66,11 +66,11 @@ void Printer::print_as_list(const Options const* options)
         {
             if (options->show_only_dirs and dir_entry.is_directory())
             {
-                std::cout << entry_val + "/" << std::endl;
+                std::cout << colorize(entry_val + "/",options->dir_color,options->dir_bg_color) << std::endl;
             }
             else if (options->show_only_files and !dir_entry.is_directory())
             {
-                std::cout << entry_val << std::endl;
+                std::cout << colorize(entry_val,options->file_color,options->file_bg_color) << std::endl;
             }
         }
     };
@@ -78,13 +78,25 @@ void Printer::print_as_list(const Options const* options)
     auto iterate_sorted = [&](std::list<std::string>& dirs,
                              std::list<std::string>& files)
     {
-        auto print = [](const auto& arg) {std::cout << arg << std::endl; };
+        bool dir = false;
+        auto print = [&](const auto& arg) 
+        {
+            auto val = dir ? colorize(arg, options->dir_color, options->dir_bg_color) :
+                colorize(arg, options->file_color, options->file_bg_color);
+            std::cout <<val << std::endl; 
+        };
         for (auto& ch : options->sorting_order)
         {
             if (ch == 'd')
+            {
+                dir = true;
                 std::for_each(dirs.begin(), dirs.end(), print);
+            }
             if (ch == 'f')
+            {
+                dir = false;
                 std::for_each(files.begin(), files.end(), print);
+            }
         }
     };
 
@@ -111,9 +123,9 @@ void Printer::print_as_table(const Options const* options)
         if (options->sort)
         {
             if (dir_entry.is_directory())
-                dirs.push_back(in::cut_quotas(entry_val) + "/");
+                dirs.push_back(colorize(in::cut_quotas(entry_val) + "/",options->dir_color,options->dir_bg_color));
             else
-                files.push_back(in::cut_quotas(entry_val));
+                files.push_back(colorize(in::cut_quotas(entry_val),options->file_color,options->file_bg_color));
         }
         else
         {
@@ -121,9 +133,9 @@ void Printer::print_as_table(const Options const* options)
             if (separator == '\n')counter = 0;
 
             if (options->show_only_dirs and dir_entry.is_directory())
-                std::cout << entry_val + "/" << separator;
+                std::cout << colorize(entry_val,options->dir_color,options->dir_bg_color) + "/" << separator;
             else if (options->show_only_files and !dir_entry.is_directory())
-                std::cout << entry_val << separator;
+                std::cout << colorize(entry_val,options->file_color,options->file_bg_color) << separator;
 
             counter++;
         }

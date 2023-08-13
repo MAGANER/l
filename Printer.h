@@ -1,6 +1,7 @@
 #ifndef PRINTER_H
 #define PRINTER_H
 #include"OptionParser.h"
+#include"Colorizer.h"
 #include<list>
 #include<functional>
 
