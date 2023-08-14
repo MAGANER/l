@@ -106,7 +106,22 @@ void PrinterInnerFn::show_permissions(const std::string& entry)
     show('w', perms::others_write);
     show('x', perms::others_exec);
 }
-
+void PrinterInnerFn::printDirectoryTree(const Options const* options,const fs::path& path, size_t level)
+{
+    for (const auto& entry : fs::directory_iterator(path)) 
+    {
+        auto entry_val = cut_quotas(entry.path().filename().string());
+        if (fs::is_directory(entry)) 
+        {
+            std::cout<< std::string(level,'-') << colorize(entry_val, options->dir_color, options->dir_bg_color) << "/" << std::endl;
+            printDirectoryTree(options,entry, level + 1);
+        }
+        else 
+        {
+            std::cout << std::string(level, ' ')<< "|" << colorize(entry_val, options->file_color, options->file_bg_color) << std::endl;
+        }
+    }
+}
 
 
 void Printer::print_as_list(const Options const* options)
@@ -286,4 +301,8 @@ void Printer::print_as_table(const Options const* options)
     }
     else
         PrinterInnerFn::iterate_over_dir(options, iterate, iterate_sorted);
+}
+void Printer::print_as_tree(const Options const* options)
+{
+    PrinterInnerFn::printDirectoryTree(options,options->dir);
 }
