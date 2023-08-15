@@ -24,6 +24,8 @@ struct Options
 		 show_creation_time;
 	bool should_compute_formating_size;
 
+	bool print_help;
+
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
@@ -62,6 +64,8 @@ struct Options
 		show_creation_time = false;
 
 		should_compute_formating_size = false;
+
+		print_help = false;
 	}
 	~Options() {}
 };
@@ -76,7 +80,7 @@ static inline void disable_options(Options* options)
 }
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T-c").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -132,6 +136,10 @@ static Options* parse_args(int argc, char** argv)
 		{
 			options->show_creation_time = true;
 			disable_options(options);
+		}
+		else if (arg == "-h")
+		{
+			options->print_help = true;
 		}
 		else
 		{

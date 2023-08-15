@@ -14,6 +14,10 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
+
+	if (options->print_help)
+		Printer::print_help();
+
 	//default mode is equal to list showing mode
 	if (options->is_default_output_mode() or options->show_as_list)
 		Printer::print_as_list(options);

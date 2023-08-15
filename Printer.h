@@ -87,6 +87,8 @@ namespace Printer
 	extern void print_as_table(const Options const* options);
 	extern void print_as_list(const Options const* options);
 	extern void print_as_tree(const Options const* options);
+
+	extern void print_help();
 };
 
 #endif

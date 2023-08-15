@@ -352,3 +352,35 @@ void Printer::print_as_tree(const Options const* options)
 {
     PrinterInnerFn::printDirectoryTree(options,options->dir);
 }
+void Printer::print_help()
+{
+    std::string help[] = {
+        "This is l help page:",
+        "Overall, this program is dedicated to show directory's content and its properties.",
+        "It can show file/dir permissions, size, creation and modification time.",
+        "It has 3 different modes of output: list, table, tree.",
+        "All properties are shown in list mode, so if you wanna show size of files in tree mode,",
+        "than program will be forced to print all requested data in list mode.",
+        "To see all files and dirs just type l without any flags.",
+        "If you don't provide any path as argument, l will show content of current dir,",
+        "otherwise it will show content of provided directory.",
+        "List of flags:",
+        "-d show only directories",
+        "-f show only files",
+        "-s sort output( -d -f and -f -d are two ways to manage sorted output)",
+        "-r recursivly walk through directory",
+        "-p show permissions of files/dirs",
+        "-T show modification time",
+        "-C show creation time",
+        "-S show size of each file in directory",
+        "-l show as list(by default)",
+        "-m show as table",
+        "-t show as tree",
+        "-h print help page and break program execution"
+    };
+
+    for (auto& l : help)
+        std::cout << l << std::endl;
+
+    exit(0);
+}
