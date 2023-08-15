@@ -123,7 +123,7 @@ void PrinterInnerFn::printDirectoryTree(const Options const* options,const fs::p
     }
 }
 
-
+#define MULT_VAL2 max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1
 void Printer::print_as_list(const Options const* options)
 {
     namespace in = PrinterInnerFn;
@@ -167,7 +167,6 @@ void Printer::print_as_list(const Options const* options)
                                       options->file_bg_color) 
                      << in::mult_str(" ",mult_val);
 
-
                 size_t file_size_str_size = 0;
                 if (options->show_file_size)
                 {
@@ -178,9 +177,19 @@ void Printer::print_as_list(const Options const* options)
                 }
                 if (options->show_permissions)
                 {
-                    auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
-                    std::cout << in::mult_str(" ", mult_val);
+                    std::cout << in::mult_str(" ", MULT_VAL2);
                     in::show_permissions(dir_entry.path().string());
+                }
+                if (options->show_last_write_time)
+                {
+                    auto time = get_modification_file_time(dir_entry.path().string());
+                    if((options->show_permissions and !options->show_file_size) or
+                        (options->show_permissions and options->show_file_size))
+                        std::cout << "  ";
+                    else
+                        std::cout << in::mult_str(" ", MULT_VAL2);
+
+                    std::cout << " mod time: "<<time;
                 }
                 std::cout << std::endl;
 

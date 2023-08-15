@@ -2,6 +2,7 @@
 #define PRINTER_H
 #include"OptionParser.h"
 #include"Colorizer.h"
+#include"FileTimeChecker.h"
 #include<list>
 #include<functional>
 #include<sstream>
