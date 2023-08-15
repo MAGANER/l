@@ -76,6 +76,7 @@ namespace PrinterInnerFn
 	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options const* options);
 	extern size_t get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options const* options);
 	extern void show_permissions(const std::string& entry);
+	extern void print_time(const std::string& time, const Options const* options, const std::string& space);
 
 	extern void printDirectoryTree(const Options const* options,const fs::path& path, size_t level = 0);
 }

@@ -19,7 +19,19 @@ static std::string get_modification_file_time(const std::string& file)
     {
         time_t mod_time = result.st_mtime;
         char mbstr[100];
-        if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&mod_time)))
+        if (std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&mod_time)))
+            return std::string(mbstr);
+    }
+    return "";
+}
+static std::string get_creation_file_time(const std::string& file)
+{
+    struct stat result;
+    if (stat(file.c_str(), &result) == 0)
+    {
+        time_t mod_time = result.st_ctime;
+        char mbstr[100];
+        if (std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&mod_time)))
             return std::string(mbstr);
     }
     return "";

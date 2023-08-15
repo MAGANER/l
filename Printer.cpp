@@ -85,6 +85,16 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::stri
     return *std::max_element(sizes.begin(), sizes.end());
 }
 
+void PrinterInnerFn::print_time(const std::string& time, const Options const* options, const std::string& space)
+{
+    if ((options->show_permissions and !options->show_file_size) or
+        (options->show_permissions and options->show_file_size))
+        std::cout << "  ";
+    else
+        std::cout << space;
+
+    std::cout << time;
+}
 void PrinterInnerFn::show_permissions(const std::string& entry)
 {
     auto p = fs::status(entry).permissions();
@@ -183,13 +193,12 @@ void Printer::print_as_list(const Options const* options)
                 if (options->show_last_write_time)
                 {
                     auto time = get_modification_file_time(dir_entry.path().string());
-                    if((options->show_permissions and !options->show_file_size) or
-                        (options->show_permissions and options->show_file_size))
-                        std::cout << "  ";
-                    else
-                        std::cout << in::mult_str(" ", MULT_VAL2);
-
-                    std::cout << " mod time: " << time;
+                    in::print_time(" mod time: " + time, options, in::mult_str(" ", MULT_VAL2));
+                }
+                if (options->show_creation_time)
+                {
+                    auto time = get_creation_file_time(dir_entry.path().string());
+                    in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
                 }
                 std::cout << std::endl;
 
@@ -226,17 +235,15 @@ void Printer::print_as_list(const Options const* options)
                 std::cout << PrinterInnerFn::mult_str(" ", mult_val);
                 PrinterInnerFn::show_permissions(arg.path().string());
             }
-            if (options->show_last_write_time and show_size)//if show_size is true, then functions is used to iterate over files
+            if (options->show_last_write_time)//if show_size is true, then functions is used to iterate over files
             {
                 auto time = get_modification_file_time(arg.path().string());
-                if ((options->show_permissions and !options->show_file_size) or
-                    (options->show_permissions and options->show_file_size))
-                    std::cout << "  ";
-                else
-                    std::cout << in::mult_str(" ", MULT_VAL2);
-
-                std::cout << " mod time: " << time;
-
+                in::print_time(" mod time: " + time, options, in::mult_str(" ", MULT_VAL2));
+            }
+            if (options->show_creation_time)
+            {
+                auto time = get_creation_file_time(arg.path().string());
+                in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
             }
             
             std::cout << std::endl;

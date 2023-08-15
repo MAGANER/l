@@ -18,7 +18,10 @@ struct Options
 
 	short dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
 
-	bool show_file_size, show_permissions, show_last_write_time;
+	bool show_file_size, 
+		 show_permissions, 
+		 show_last_write_time, 
+		 show_creation_time;
 	bool should_compute_formating_size;
 
 	inline bool is_regime_showing_ok()
@@ -56,6 +59,7 @@ struct Options
 		show_file_size = false;
 		show_permissions = false;
 		show_last_write_time = false;
+		show_creation_time = false;
 
 		should_compute_formating_size = false;
 	}
@@ -72,7 +76,7 @@ static inline void disable_options(Options* options)
 }
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S-p-T-c").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -124,6 +128,11 @@ static Options* parse_args(int argc, char** argv)
 			options->show_last_write_time = true;
 			disable_options(options);
 		}
+		else if (arg == "-C")
+		{
+			options->show_creation_time = true;
+			disable_options(options);
+		}
 		else
 		{
 			std::cout << "Error:" << arg << " is unknown argument! Try using -h to see help!" << std::endl;
@@ -142,7 +151,8 @@ static Options* parse_args(int argc, char** argv)
 
 	if (options->show_permissions or 
 		options->show_file_size   or 
-		options->show_last_write_time)
+		options->show_last_write_time or
+		options->show_creation_time)
 		options->should_compute_formating_size = true;
 
 	//if only sort flag is passed, then set default sorting order
