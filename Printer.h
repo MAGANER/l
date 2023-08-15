@@ -27,21 +27,23 @@ namespace PrinterInnerFn
 		if (options->recursive)
 		{
 			erase_sub(entry_val, options->dir);
-			entry_val = entry_val.substr(1); //erase weird / or \ at the beginning of str
+			if(entry_val[0] == '/' or entry_val[0] == '\\')
+				entry_val = entry_val.substr(1); //erase weird / or \ at the beginning of str
 		}
 
-		return entry_val;
+		return fs::path{entry_val}.string();
 	};
 
 
 	//this function type is dedicated for regular iterating without sorting
 	typedef std::function<void(const fs::directory_entry& dir_entry,
-							   std::list<std::string>& dirs,
-							   std::list<std::string>& files)> fn;
+							   std::list<fs::directory_entry>& dirs,
+							   std::list<fs::directory_entry>& files)> fn;
+
 
 	//this one dedicated for iteration over sorted data
-	typedef std::function<void(std::list<std::string>& dirs,
-								std::list<std::string>& files)> fn1;
+	typedef std::function<void(std::list<fs::directory_entry>& dirs,
+								std::list<fs::directory_entry>& files)> fn1;
 
 	extern void iterate_over_dir(const Options const* options,
 				const fn& iterate,

@@ -16,7 +16,7 @@ void PrinterInnerFn::iterate_over_dir(const Options const* options,
                   const fn& iterate,
                   const fn1& iterate_sorted)
 {
-    std::list<std::string> dirs, files;
+    std::list<fs::directory_entry> dirs, files;
 
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(options->dir))
     {
@@ -30,7 +30,7 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options const* options,
                     const fn& iterate,
                     const fn1& iterate_sorted)
 {
-    std::list<std::string> dirs, files;
+    std::list<fs::directory_entry> dirs, files;
 
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(options->dir))
     {
@@ -138,19 +138,19 @@ void Printer::print_as_list(const Options const* options)
         in::get_max_dir_file_size_str_size(options->dir, options): 1;
 
     auto iterate = [&](const fs::directory_entry& dir_entry,
-        std::list<std::string>& dirs,
-        std::list<std::string>& files)
+        std::list<fs::directory_entry>& dirs,
+        std::list<fs::directory_entry>& files)
     {
         namespace in = PrinterInnerFn;
-           
+          
         auto entry_val = in::prepare_entry_val(dir_entry, options);
         //if shouldn't sort just print
         if (options->sort)
         {
             if (dir_entry.is_directory())
-                dirs.push_back(in::cut_quotas(entry_val) + "/");
+                dirs.push_back(fs::directory_entry(dir_entry));
             else
-                files.push_back(in::cut_quotas(entry_val));
+                files.push_back(fs::directory_entry(dir_entry));
                 
         }
         else
@@ -189,7 +189,7 @@ void Printer::print_as_list(const Options const* options)
                     else
                         std::cout << in::mult_str(" ", MULT_VAL2);
 
-                    std::cout << " mod time: "<<time;
+                    std::cout << " mod time: " << time;
                 }
                 std::cout << std::endl;
 
@@ -197,31 +197,46 @@ void Printer::print_as_list(const Options const* options)
         }
     };
     
-    auto iterate_sorted = [&](std::list<std::string>& dirs,
-                             std::list<std::string>& files)
+    auto iterate_sorted = [&](std::list<fs::directory_entry>& dirs,
+                             std::list<fs::directory_entry>& files)
     {   
         bool show_size = false;
         auto print = [&](const auto& arg) 
         { 
-            auto mult_val = max_size == 1 ? 1 : (max_size - arg.size()) + 1;
+            auto entry_val = in::prepare_entry_val(arg, options);
+            auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
             
-            auto out = show_size ? colorize(arg, options->dir_color, options->dir_bg_color) :
-                colorize(arg, options->file_color, options->file_bg_color);
+            auto out = show_size ? colorize(entry_val, options->file_color, options->file_bg_color) :
+                colorize(entry_val, options->dir_color, options->dir_bg_color);
             std::cout << out << PrinterInnerFn::mult_str(" ",mult_val);
 
             size_t file_size_str_size = 0;
             if (options->show_file_size and show_size)
             {
-                std::cout << PrinterInnerFn::HumanReadable{fs::file_size(arg)};
+                auto f = fs::file_size(arg.path());
+                std::cout << PrinterInnerFn::HumanReadable{f};
                 std::stringstream buffer;
-                buffer << PrinterInnerFn::HumanReadable{fs::file_size(arg)};
+                buffer << PrinterInnerFn::HumanReadable{f};
                 file_size_str_size = buffer.str().size();
+
             }
             if (options->show_permissions)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
                 std::cout << PrinterInnerFn::mult_str(" ", mult_val);
-                PrinterInnerFn::show_permissions(arg);
+                PrinterInnerFn::show_permissions(arg.path().string());
+            }
+            if (options->show_last_write_time and show_size)//if show_size is true, then functions is used to iterate over files
+            {
+                auto time = get_modification_file_time(arg.path().string());
+                if ((options->show_permissions and !options->show_file_size) or
+                    (options->show_permissions and options->show_file_size))
+                    std::cout << "  ";
+                else
+                    std::cout << in::mult_str(" ", MULT_VAL2);
+
+                std::cout << " mod time: " << time;
+
             }
             
             std::cout << std::endl;
@@ -250,12 +265,13 @@ void Printer::print_as_list(const Options const* options)
 
 
 }
+
 void Printer::print_as_table(const Options const* options)
 {
     size_t counter = 0;
     auto iterate = [&](const fs::directory_entry& dir_entry,
-        std::list<std::string>& dirs,
-        std::list<std::string>& files)
+        std::list<fs::directory_entry>& dirs,
+        std::list<fs::directory_entry>& files)
     {
         namespace in = PrinterInnerFn;
         auto entry_val = in::prepare_entry_val(dir_entry, options);
@@ -263,9 +279,9 @@ void Printer::print_as_table(const Options const* options)
         if (options->sort)
         {
             if (dir_entry.is_directory())
-                dirs.push_back(colorize(in::cut_quotas(entry_val) + "/",options->dir_color,options->dir_bg_color));
+                dirs.push_back(fs::directory_entry(dir_entry));
             else
-                files.push_back(colorize(in::cut_quotas(entry_val),options->file_color,options->file_bg_color));
+                files.push_back(fs::directory_entry(dir_entry));
         }
         else
         {
@@ -281,10 +297,13 @@ void Printer::print_as_table(const Options const* options)
         }
     };
 
-    auto iterate_sorted = [&](std::list<std::string>& dirs,
-        std::list<std::string>& files)
+    auto iterate_sorted = [&](std::list<fs::directory_entry>& dirs,
+        std::list<fs::directory_entry>& files)
     {
         counter = 0;
+
+
+        auto show_dirs = false;
 
         char separator = ' ';
         auto print = [&](const auto& arg)
@@ -292,15 +311,24 @@ void Printer::print_as_table(const Options const* options)
             separator = counter == options->table_output_width ? '\n' : ' ';
             if (separator == '\n')counter = 0;
 
-            std::cout << arg << separator;
+            auto entry_val = PrinterInnerFn::prepare_entry_val(arg, options);
+            entry_val = show_dirs ? colorize(entry_val + "/", options->dir_color, options->dir_bg_color) :
+                colorize(entry_val, options->file_color, options->file_bg_color);
+            std::cout << entry_val << separator;
             counter++;
         };
         for (auto& ch : options->sorting_order)
         {
             if (ch == 'd')
+            {
+                show_dirs = true;
                 std::for_each(dirs.begin(), dirs.end(), print);
+            }
             if (ch == 'f')
+            {
+                show_dirs = false;
                 std::for_each(files.begin(), files.end(), print);
+            }
         }
     };
    
@@ -311,6 +339,8 @@ void Printer::print_as_table(const Options const* options)
     else
         PrinterInnerFn::iterate_over_dir(options, iterate, iterate_sorted);
 }
+
+
 void Printer::print_as_tree(const Options const* options)
 {
     PrinterInnerFn::printDirectoryTree(options,options->dir);
