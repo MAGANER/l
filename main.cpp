@@ -3,7 +3,9 @@
 #include"ConfigReader.h"
 int main(int argc, char** argv)
 {
+	std::ios_base::sync_with_stdio(false);
 	auto * options = parse_args(argc, argv);
+	
 	read_config_file(options);
 
 	//check there are no exluding flags

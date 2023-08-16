@@ -1,8 +1,12 @@
 #ifndef CONFIG_READER_H
 #define CONFIG_READER_H
-#include<fstream>
+#include <fstream>
 #include <stdlib.h>
-#include"OptionParser.h"
+#include "OptionParser.h"
+#include <pwd.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 
 static inline std::string get_default_config()
 {
@@ -12,16 +16,25 @@ static inline std::string get_default_config()
 			"file_color=34\n"
 			"file_bg_color=40\n";
 }
+
 static void read_config_file(Options* options)
 {
+
+	// Get home directory and cast to a string.
+	const char *path;
+
+	if((path = getenv("HOME")) == NULL) {
+		path = getpwuid(getuid()) -> pw_dir;
+	}
+
+	std::string home_dir = std::string(path);
+
 	//if there is config file, than create it
 	//otherwise read and save options
-
-	auto home_dir = std::string(getenv("USERPROFILE"));
 	auto config = std::ifstream(home_dir + "/.config/.lconfig");
 	if (!config)
 	{
-		std::cout << ".lconfig file will be created at " + home_dir+"/.config" << std::endl;
+		std::cout << ".lconfig file will be created at " + home_dir +"/.config" << std::endl;
 		auto write_config = std::ofstream(home_dir + "/.config/.lconfig");
 		write_config << get_default_config();
 	}
