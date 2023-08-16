@@ -3,9 +3,6 @@
 #include"ConfigReader.h"
 int main(int argc, char** argv)
 {
-	// Disable stream syncronization. Only needed if mixing C/C++ I/O streams.
-	std::ios_base::sync_with_stdio(false);
-
 	auto * options = parse_args(argc, argv);
 	read_config_file(options);
 
