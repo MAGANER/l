@@ -18,11 +18,11 @@ static void read_config_file(Options* options)
 	//otherwise read and save options
 
 	auto home_dir = std::string(getenv("USERPROFILE"));
-	auto config = std::ifstream(home_dir + "/.lconfig");
+	auto config = std::ifstream(home_dir + "/.config/.lconfig");
 	if (!config)
 	{
-		std::cout << ".lconfig file will be created at " + home_dir << std::endl;
-		auto write_config = std::ofstream(home_dir + "/.lconfig");
+		std::cout << ".lconfig file will be created at " + home_dir+"/.config" << std::endl;
+		auto write_config = std::ofstream(home_dir + "/.config/.lconfig");
 		write_config << get_default_config();
 	}
 	else
