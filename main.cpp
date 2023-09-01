@@ -1,8 +1,11 @@
 #include"OptionParser.h"
 #include"Printer.h"
 #include"ConfigReader.h"
+#include<clocale>
 int main(int argc, char** argv)
 {
+	std::setlocale(LC_ALL, ""); //use default system locale
+
 	auto options = parse_args(argc, argv);
 	read_config_file(options);
 
