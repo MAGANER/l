@@ -12,7 +12,7 @@ void PrinterInnerFn::erase_sub(std::string& str, const std::string& sub)
         str.erase(pos, sub.length());
     }
 }
-void PrinterInnerFn::iterate_over_dir(const Options const* options,
+void PrinterInnerFn::iterate_over_dir(const Options* const options,
                   const fn& iterate,
                   const fn1& iterate_sorted)
 {
@@ -26,7 +26,7 @@ void PrinterInnerFn::iterate_over_dir(const Options const* options,
     if (options->sort)
         iterate_sorted(dirs, files);
 }
-void PrinterInnerFn::iterate_over_dir_recursively(const Options const* options,
+void PrinterInnerFn::iterate_over_dir_recursively(const Options* const options,
                     const fn& iterate,
                     const fn1& iterate_sorted)
 {
@@ -40,7 +40,7 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options const* options,
     if (options->sort)
         iterate_sorted(dirs, files);
 }
-size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options const* options)
+size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options* const options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
@@ -50,7 +50,7 @@ size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, const Options const* options)
+size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, const Options* const options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
@@ -60,7 +60,7 @@ size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, c
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t PrinterInnerFn::get_max_dir_file_size_str_size(const std::string& dir, const Options const* options)
+size_t PrinterInnerFn::get_max_dir_file_size_str_size(const std::string& dir, const Options* const options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
@@ -72,7 +72,7 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size(const std::string& dir, co
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options const* options)
+size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options* const options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
@@ -85,7 +85,7 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::stri
     return *std::max_element(sizes.begin(), sizes.end());
 }
 
-void PrinterInnerFn::print_time(const std::string& time, const Options const* options, const std::string& space)
+void PrinterInnerFn::print_time(const std::string& time, const Options* const options, const std::string& space)
 {
     if ((options->show_permissions and !options->show_file_size) or
         (options->show_permissions and options->show_file_size))
@@ -116,7 +116,7 @@ void PrinterInnerFn::show_permissions(const std::string& entry)
     show('w', perms::others_write);
     show('x', perms::others_exec);
 }
-void PrinterInnerFn::printDirectoryTree(const Options const* options,const fs::path& path, size_t level)
+void PrinterInnerFn::printDirectoryTree(const Options* const options,const fs::path& path, size_t level)
 {
     for (const auto& entry : fs::directory_iterator(path)) 
     {
@@ -134,7 +134,7 @@ void PrinterInnerFn::printDirectoryTree(const Options const* options,const fs::p
 }
 
 #define MULT_VAL2 max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1
-void Printer::print_as_list(const Options const* options)
+void Printer::print_as_list(const Options* const options)
 {
     namespace in = PrinterInnerFn;
     //this variable is required to compute indent between file name and its size
@@ -273,7 +273,7 @@ void Printer::print_as_list(const Options const* options)
 
 }
 
-void Printer::print_as_table(const Options const* options)
+void Printer::print_as_table(const Options* const options)
 {
     size_t counter = 0;
     auto iterate = [&](const fs::directory_entry& dir_entry,
@@ -348,7 +348,7 @@ void Printer::print_as_table(const Options const* options)
 }
 
 
-void Printer::print_as_tree(const Options const* options)
+void Printer::print_as_tree(const Options* const options)
 {
     PrinterInnerFn::printDirectoryTree(options,options->dir);
 }

@@ -20,7 +20,7 @@ namespace PrinterInnerFn
 			ns += str;
 		return ns;
 	}
-	static inline  std::string prepare_entry_val(const fs::directory_entry& dir_entry, const Options const* options)
+	static inline  std::string prepare_entry_val(const fs::directory_entry& dir_entry, const Options* const options)
 	{
 		auto entry_val = dir_entry.path().filename().string();
 		entry_val = options->recursive ? dir_entry.path().parent_path().string() + "/" + entry_val : entry_val;
@@ -45,11 +45,11 @@ namespace PrinterInnerFn
 	typedef std::function<void(std::list<fs::directory_entry>& dirs,
 								std::list<fs::directory_entry>& files)> fn1;
 
-	extern void iterate_over_dir(const Options const* options,
+	extern void iterate_over_dir(const Options* const options,
 				const fn& iterate,
 				const fn1& iterate_sorted);
 
-	extern void iterate_over_dir_recursively(const Options const* options,
+	extern void iterate_over_dir_recursively(const Options* const options,
 		const fn& iterate,
 		const fn1& iterate_sorted);
 
@@ -71,22 +71,22 @@ namespace PrinterInnerFn
 	}
 	};
 
-	extern size_t get_max_dir_str_size(const std::string& dir,const Options const* options);
-	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options const* options);
-	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options const* options);
-	extern size_t get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options const* options);
+	extern size_t get_max_dir_str_size(const std::string& dir,const Options* const options);
+	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options* const options);
+	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options* const options);
+	extern size_t get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options* const options);
 	extern void show_permissions(const std::string& entry);
-	extern void print_time(const std::string& time, const Options const* options, const std::string& space);
+	extern void print_time(const std::string& time, const Options* const options, const std::string& space);
 
-	extern void printDirectoryTree(const Options const* options,const fs::path& path, size_t level = 0);
+	extern void printDirectoryTree(const Options* const options,const fs::path& path, size_t level = 0);
 }
 namespace Printer
 {
 	namespace fs = std::filesystem;
 
-	extern void print_as_table(const Options const* options);
-	extern void print_as_list(const Options const* options);
-	extern void print_as_tree(const Options const* options);
+	extern void print_as_table(const Options* const options);
+	extern void print_as_list(const Options* const options);
+	extern void print_as_tree(const Options* const options);
 
 	extern void print_help();
 };
