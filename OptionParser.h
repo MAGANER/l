@@ -18,10 +18,10 @@ struct Options
 
 	short dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
 
-	bool show_file_size, 
-		 show_permissions, 
-		 show_last_write_time, 
-		 show_creation_time;
+	bool show_file_size,
+		show_permissions,
+		show_last_write_time,
+		show_creation_time;
 	bool should_compute_formating_size;
 
 	bool print_help;
@@ -80,7 +80,7 @@ static inline void disable_options(Options* options)
 }
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -135,6 +135,14 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-C")
 		{
 			options->show_creation_time = true;
+			disable_options(options);
+		}
+		else if (arg == "-a")
+		{
+			options->show_file_size       = true;
+			options->show_creation_time   = true;
+			options->show_last_write_time = true;
+			options->show_permissions     = true;
 			disable_options(options);
 		}
 		else if (arg == "-h")
