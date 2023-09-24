@@ -6,6 +6,7 @@
 #include<list>
 #include<functional>
 #include<sstream>
+#include<cmath>
 
 //namespace contains functions used by Printer's namespace ones
 //they aren't dedicated to be used out of Printer namespace
