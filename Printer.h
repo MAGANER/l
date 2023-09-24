@@ -27,7 +27,7 @@ namespace PrinterInnerFn
 		if (options->recursive)
 		{
 			erase_sub(entry_val, options->dir);
-			if(entry_val[0] == '/' or entry_val[0] == '\\')
+			if(entry_val[0] == '/' || entry_val[0] == '\\')
 				entry_val = entry_val.substr(1); //erase weird / or \ at the beginning of str
 		}
 

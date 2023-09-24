@@ -11,9 +11,9 @@ int main(int argc, char** argv)
 
 	//check there are no exluding flags
 	//because you can show only as list, table or tree
-	if (!options->is_regime_showing_ok() and !options->is_default_output_mode())
+	if (!options->is_regime_showing_ok() && !options->is_default_output_mode())
 	{
-		std::cout << "Error: you can use only one flag: -l, -m or -t, because  they exclude each other!" << std::endl;
+		std::cout << "Error: you can use only one flag: -l, -m || -t, because  they exclude each other!" << std::endl;
 		exit(-1);
 	}
 
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 		Printer::print_help();
 
 	//default mode is equal to list showing mode
-	if (options->is_default_output_mode() or options->show_as_list)
+	if (options->is_default_output_mode() || options->show_as_list)
 		Printer::print_as_list(options);
 	else if (options->show_as_table)
 		Printer::print_as_table(options);

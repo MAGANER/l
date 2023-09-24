@@ -31,14 +31,14 @@ struct Options
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
-		return (show_as_list and !show_as_tree and !show_as_table) or
-			   (!show_as_list and show_as_tree and !show_as_table) or
-			   (!show_as_list and !show_as_tree and show_as_table);
+		return (show_as_list && !show_as_tree && !show_as_table) ||
+			   (!show_as_list && show_as_tree && !show_as_table) ||
+			   (!show_as_list && !show_as_tree && show_as_table);
 	}
 	inline bool is_default_output_mode()
 	{
 		//user did not provided any flag, so output will be default
-		return !(show_as_list or show_as_tree or show_as_table);
+		return !(show_as_list || show_as_tree || show_as_table);
 	}
 
 	Options():
@@ -160,21 +160,21 @@ static Options* parse_args(int argc, char** argv)
 	}
 
 	//show all
-	if (args.find("-d") != std::string::npos and
+	if (args.find("-d") != std::string::npos &&
 		args.find("-f") != std::string::npos)
 	{
 		options->show_only_dirs = true;
 		options->show_only_files = true;
 	}
 
-	if (options->show_permissions or 
-		options->show_file_size   or 
-		options->show_last_write_time or
+	if (options->show_permissions || 
+		options->show_file_size   || 
+		options->show_last_write_time ||
 		options->show_creation_time)
 		options->should_compute_formating_size = true;
 
 	//if only sort flag is passed, then set default sorting order
-	if (options->sort and options->sorting_order.empty())
+	if (options->sort && options->sorting_order.empty())
 		options->sorting_order = "df";
 
 	return options;

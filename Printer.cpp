@@ -103,8 +103,8 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::stri
 
 void PrinterInnerFn::print_time(const std::string& time, const Options* const options, const std::string& space)
 {
-    if ((options->show_permissions and !options->show_file_size) or
-        (options->show_permissions and options->show_file_size))
+    if ((options->show_permissions && !options->show_file_size) ||
+        (options->show_permissions && options->show_file_size))
         std::cout << "  ";
     else
         std::cout << space;
@@ -181,12 +181,12 @@ void Printer::print_as_list(const Options* const options)
         }
         else
         {
-            if (options->show_only_dirs and dir_entry.is_directory())
+            if (options->show_only_dirs && dir_entry.is_directory())
             {
                 auto val = entry_val + "/";
                 std::cout << in::psd(val,options) << std::endl;
             }
-            else if (options->show_only_files and !dir_entry.is_directory())
+            else if (options->show_only_files && !dir_entry.is_directory())
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
                 std::cout << in::psf(entry_val, options)
@@ -235,7 +235,7 @@ void Printer::print_as_list(const Options* const options)
             std::cout << out << PrinterInnerFn::mult_str(" ",mult_val);
 
             size_t file_size_str_size = 0;
-            if (options->show_file_size and show_size)
+            if (options->show_file_size && show_size)
             {
                 auto f = fs::file_size(arg.path());
                 std::cout << PrinterInnerFn::HumanReadable{f};
@@ -310,9 +310,9 @@ void Printer::print_as_table(const Options* const options)
             auto separator = counter == options->table_output_width ? '\n' : ' ';
             if (separator == '\n')counter = 0;
 
-            if (options->show_only_dirs and dir_entry.is_directory())
+            if (options->show_only_dirs && dir_entry.is_directory())
                 std::cout << in::psd(entry_val,options) + "/" << separator;
-            else if (options->show_only_files and !dir_entry.is_directory())
+            else if (options->show_only_files && !dir_entry.is_directory())
                 std::cout << in::psf(entry_val,options) << separator;
 
             counter++;
