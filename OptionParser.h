@@ -41,34 +41,29 @@ struct Options
 		return !(show_as_list or show_as_tree or show_as_table);
 	}
 
-	Options() 
+	Options():
+		show_only_dirs(true),
+		show_only_files(true),
+		show_as_list(false),
+		show_as_tree(false),
+		show_as_table(false),
+		sort(false),
+		recursive(false),
+		show_file_size(false),
+		show_permissions(false),
+		show_last_write_time(false),
+		show_creation_time(false),
+		should_compute_formating_size(false),
+		print_help(false),
+		print_pure(false),
+		dir(fs::current_path().string())
 	{
-		dir = fs::current_path().string();
 		//l -d -f <=> l 
 		/*
 			so if you want to show directories and files, then just don't type any
 			flag related, but if you want only files, type -f and if you need only
 			directories type -d
 		*/
-		show_only_dirs  = true;
-		show_only_files = true;
-
-		show_as_list	= false;
-		show_as_tree    = false;
-		show_as_table   = false;
-
-		sort = false;
-		recursive = false;
-
-		show_file_size = false;
-		show_permissions = false;
-		show_last_write_time = false;
-		show_creation_time = false;
-
-		should_compute_formating_size = false;
-
-		print_help = false;
-		print_pure = false;
 	}
 	~Options() {}
 };
