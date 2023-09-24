@@ -71,6 +71,10 @@ namespace PrinterInnerFn
 	}
 	};
 
+	//prepare string to show colorized or pure
+	extern std::string psf(std::string& str, const Options* const options);
+	extern std::string psd(std::string& str, const Options* const options);
+
 	extern size_t get_max_dir_str_size(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options* const options);

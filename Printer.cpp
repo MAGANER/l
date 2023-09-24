@@ -40,6 +40,22 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options* const options,
     if (options->sort)
         iterate_sorted(dirs, files);
 }
+
+std::string PrinterInnerFn::psf(std::string& str, const Options* const options)
+{
+    if (options->print_pure)
+        return str;
+
+    return colorize(str, options->file_color, options->file_bg_color);
+}
+std::string PrinterInnerFn::psd(std::string& str, const Options* const options)
+{
+    if (options->print_pure)
+        return str;
+
+    return colorize(str, options->dir_color, options->dir_bg_color);
+}
+
 size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options* const options)
 {
     std::vector<size_t> sizes;
@@ -123,12 +139,12 @@ void PrinterInnerFn::printDirectoryTree(const Options* const options,const fs::p
         auto entry_val = cut_quotas(entry.path().filename().string());
         if (fs::is_directory(entry)) 
         {
-            std::cout<< std::string(level,'-') << colorize(entry_val, options->dir_color, options->dir_bg_color) << "/" << std::endl;
+            std::cout<< std::string(level,'-') << psd(entry_val,options) << "/" << std::endl;
             printDirectoryTree(options,entry, level + 1);
         }
         else 
         {
-            std::cout << std::string(level, ' ')<< "|" << colorize(entry_val, options->file_color, options->file_bg_color) << std::endl;
+            std::cout << std::string(level, ' ')<< "|" << psf(entry_val, options) << std::endl;
         }
     }
 }
@@ -167,15 +183,14 @@ void Printer::print_as_list(const Options* const options)
         {
             if (options->show_only_dirs and dir_entry.is_directory())
             {
-                std::cout << colorize(entry_val + "/",options->dir_color,options->dir_bg_color) << std::endl;
+                auto val = entry_val + "/";
+                std::cout << in::psd(val,options) << std::endl;
             }
             else if (options->show_only_files and !dir_entry.is_directory())
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
-                std::cout << colorize(entry_val, 
-                                      options->file_color, 
-                                      options->file_bg_color) 
-                     << in::mult_str(" ",mult_val);
+                std::cout << in::psf(entry_val, options)
+                          << in::mult_str(" ",mult_val);
 
                 size_t file_size_str_size = 0;
                 if (options->show_file_size)
@@ -215,8 +230,8 @@ void Printer::print_as_list(const Options* const options)
             auto entry_val = in::prepare_entry_val(arg, options);
             auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
             
-            auto out = show_size ? colorize(entry_val, options->file_color, options->file_bg_color) :
-                colorize(entry_val, options->dir_color, options->dir_bg_color);
+            auto out = show_size ? in::psf(entry_val,options) :
+                in::psd(entry_val,options);
             std::cout << out << PrinterInnerFn::mult_str(" ",mult_val);
 
             size_t file_size_str_size = 0;
@@ -296,9 +311,9 @@ void Printer::print_as_table(const Options* const options)
             if (separator == '\n')counter = 0;
 
             if (options->show_only_dirs and dir_entry.is_directory())
-                std::cout << colorize(entry_val,options->dir_color,options->dir_bg_color) + "/" << separator;
+                std::cout << in::psd(entry_val,options) + "/" << separator;
             else if (options->show_only_files and !dir_entry.is_directory())
-                std::cout << colorize(entry_val,options->file_color,options->file_bg_color) << separator;
+                std::cout << in::psf(entry_val,options) << separator;
 
             counter++;
         }
@@ -319,8 +334,9 @@ void Printer::print_as_table(const Options* const options)
             if (separator == '\n')counter = 0;
 
             auto entry_val = PrinterInnerFn::prepare_entry_val(arg, options);
-            entry_val = show_dirs ? colorize(entry_val + "/", options->dir_color, options->dir_bg_color) :
-                colorize(entry_val, options->file_color, options->file_bg_color);
+            auto dir_val = entry_val + "/";
+            entry_val = show_dirs ? PrinterInnerFn::psd(dir_val,options) :
+                PrinterInnerFn::psf(entry_val,options);
             std::cout << entry_val << separator;
             counter++;
         };
@@ -376,6 +392,8 @@ void Printer::print_help()
         "-l show as list(by default)",
         "-m show as table",
         "-t show as tree",
+        "-a show all information(permissions, sizes, creation/modification times",
+        "-P print information without colorizing",
         "-h print help page and break program execution"
     };
 
