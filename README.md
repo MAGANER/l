@@ -21,6 +21,9 @@ To see all files and dirs just type l without any flags.<br>
 If you don't provide any path as argument, l will show content of current dir,<br>
 otherwise it will show content of provided directory.<br>
 
+## Usage
+```$ l```<br>
+```$ l -flag1 -flagn```<br>
 
 List of flags:<br>
 ```-d``` show only directories<br>
@@ -34,4 +37,6 @@ List of flags:<br>
 ```-l``` show as list(by default)<br>
 ```-m``` show as table<br>
 ```-t``` show as tree<br>
+```-a``` show all information(permissions, size, creation/modification time)<br>
+```-P``` print without colorizing, use standard color codes<br>
 ```-h``` print help page and break program execution<br>
