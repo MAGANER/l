@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include"OptionParser.h"
 
+#ifdef __linux__
+#include<unistd.h>
+#include<sys/types.h>
+#include<pwd.h>
+#endif
+
 static inline std::string get_default_config()
 {
 	return "table_output_width=5\n" 
@@ -12,12 +18,31 @@ static inline std::string get_default_config()
 			"file_color=34\n"
 			"file_bg_color=40\n";
 }
+
+
+static std::string get_user_home_dir()
+{
+
+#ifdef _WIN32
+	return std::string(getenv("USERPROFILE"));
+#endif
+
+#ifdef __linux__
+	char* dir = getenv("HOME");
+	if(dir == NULL)
+	{
+		dir = getpwuid(getuid())->pw_dir;
+	}
+	return std::string(dir);
+#endif
+}
 static void read_config_file(Options* options)
 {
 	//if there is config file, than create it
 	//otherwise read and save options
 
-	auto home_dir = std::string(getenv("USERPROFILE"));
+
+	auto home_dir = get_user_home_dir();
 	auto config = std::ifstream(home_dir + "/.config/.lconfig");
 	if (!config)
 	{
