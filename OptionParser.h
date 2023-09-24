@@ -26,6 +26,8 @@ struct Options
 
 	bool print_help;
 
+	bool print_pure;
+
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
@@ -66,6 +68,7 @@ struct Options
 		should_compute_formating_size = false;
 
 		print_help = false;
+		print_pure = false;
 	}
 	~Options() {}
 };
@@ -80,7 +83,7 @@ static inline void disable_options(Options* options)
 }
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a-P").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -148,6 +151,10 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-h")
 		{
 			options->print_help = true;
+		}
+		else if (arg == "-P")
+		{
+			options->print_pure = true;
 		}
 		else
 		{
