@@ -1,8 +1,6 @@
 # l
 Alternative to ls classical application
 
-There are no external dependencies, only standard library.
-
 # Output customization
 In ~/.config/ .lconfig file is created at first run of program<br>
 and it contains data about colors and number of element per line for table output.<br>
