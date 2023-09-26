@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 	//because you can show only as list, table or tree
 	if (!options->is_regime_showing_ok() && !options->is_default_output_mode())
 	{
-		std::cout << "Error: you can use only one flag: -l, -m || -t, because  they exclude each other!" << std::endl;
+		fmt::print("Error: you can use only one flag: -l, -m || -t, because  they exclude each other!");
 		exit(-1);
 	}
 

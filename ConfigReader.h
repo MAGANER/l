@@ -3,6 +3,7 @@
 #include<fstream>
 #include <stdlib.h>
 #include"OptionParser.h"
+#include"fmt/core.h"
 
 #ifdef __linux__
 #include<unistd.h>
@@ -13,10 +14,10 @@
 static inline std::string get_default_config()
 {
 	return "table_output_width=5\n" 
-			"dir_color=94\n"
-			"dir_bg_color=40\n" 
+			"dir_color=31\n"
+			"dir_bg_color=30\n" 
 			"file_color=34\n"
-			"file_bg_color=40\n";
+			"file_bg_color=30\n";
 }
 
 
@@ -46,7 +47,7 @@ static void read_config_file(Options* options)
 	auto config = std::ifstream(home_dir + "/.config/.lconfig");
 	if (!config)
 	{
-		std::cout << ".lconfig file will be created at " + home_dir+"/.config" << std::endl;
+		fmt::print(".lconfig file will be created at {}/.config \n",home_dir);
 		auto write_config = std::ofstream(home_dir + "/.config/.lconfig");
 		write_config << get_default_config();
 	}
@@ -91,7 +92,4 @@ static void read_config_file(Options* options)
 		}
 	}
 }
-
-
-
 #endif

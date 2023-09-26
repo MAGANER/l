@@ -2,7 +2,7 @@
 #define OPTION_PARSER_H
 #include<string>
 #include<filesystem>
-#include<iostream>
+#include"fmt/core.h"
 
 namespace fs = std::filesystem;
 struct Options
@@ -16,7 +16,7 @@ struct Options
 
 	size_t table_output_width = 4; //default value
 
-	short dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
+	uint8_t dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
 
 	bool show_file_size,
 		show_permissions,
@@ -93,7 +93,8 @@ static Options* parse_args(int argc, char** argv)
 			args += arg;
 		else
 		{
-			std::cout <<"Error:"<< arg << " is already added as flag!" << std::endl;
+			fmt::print("Error {} is already added as flag!", arg);
+			exit(-1);
 		}
 
 		if (fs::is_directory(arg))
@@ -153,7 +154,7 @@ static Options* parse_args(int argc, char** argv)
 		}
 		else
 		{
-			std::cout << "Error:" << arg << " is unknown argument! Try using -h to see help!" << std::endl;
+			fmt::print("Error:{} is unknown argument! Try using -h to see help!",arg);
 			exit(-1);
 
 		}
@@ -179,5 +180,4 @@ static Options* parse_args(int argc, char** argv)
 
 	return options;
 }
-
 #endif 

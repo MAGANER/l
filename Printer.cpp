@@ -40,20 +40,27 @@ void PrinterInnerFn::iterate_over_dir_recursively(const Options* const options,
     if (options->sort)
         iterate_sorted(dirs, files);
 }
-
-std::string PrinterInnerFn::psf(std::string& str, const Options* const options)
+void PrinterInnerFn::print_d(const std::string& str, const Options* const options)
 {
     if (options->print_pure)
-        return str;
-
-    return colorize(str, options->file_color, options->file_bg_color);
+    {
+        fmt::print(str);
+    }
+    else
+    {
+        fmt::print(FG(options->dir_color) | BG(options->dir_bg_color),str);
+    }
 }
-std::string PrinterInnerFn::psd(std::string& str, const Options* const options)
+void PrinterInnerFn::print_f(const std::string& str, const Options* const options)
 {
     if (options->print_pure)
-        return str;
-
-    return colorize(str, options->dir_color, options->dir_bg_color);
+    {
+        fmt::print(str);
+    }
+    else
+    {
+        fmt::print(FG(options->file_color) | BG(options->file_bg_color), str);
+    }
 }
 
 size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options* const options)
@@ -105,11 +112,11 @@ void PrinterInnerFn::print_time(const std::string& time, const Options* const op
 {
     if ((options->show_permissions && !options->show_file_size) ||
         (options->show_permissions && options->show_file_size))
-        std::cout << "  ";
+        fmt::print("  ");
     else
-        std::cout << space;
+        fmt::print(space);
 
-    std::cout << time;
+    fmt::print(time);
 }
 void PrinterInnerFn::show_permissions(const std::string& entry)
 {
@@ -118,10 +125,10 @@ void PrinterInnerFn::show_permissions(const std::string& entry)
     using std::filesystem::perms;
     auto show = [=](char op, perms perm)
     {
-        std::cout << (perms::none == (perm & p) ? '-' : op);
+        fmt::print("{}", perms::none == (perm & p) ? '-' : op);
     };
 
-    std::cout << " ";
+    fmt::print(" ");
     show('r', perms::owner_read);
     show('w', perms::owner_write);
     show('x', perms::owner_exec);
@@ -139,12 +146,14 @@ void PrinterInnerFn::printDirectoryTree(const Options* const options,const fs::p
         auto entry_val = cut_quotas(entry.path().filename().string());
         if (fs::is_directory(entry)) 
         {
-            std::cout<< std::string(level,'-') << psd(entry_val,options) << "/" << std::endl;
+            fmt::print(std::string(level, '-'));
+            print_d(entry_val, options);
             printDirectoryTree(options,entry, level + 1);
         }
         else 
         {
-            std::cout << std::string(level, ' ')<< "|" << psf(entry_val, options) << std::endl;
+            fmt::print(std::string(level, ' '));
+            print_f(entry_val, options);
         }
     }
 }
@@ -184,17 +193,18 @@ void Printer::print_as_list(const Options* const options)
             if (options->show_only_dirs && dir_entry.is_directory())
             {
                 auto val = entry_val + "/";
-                std::cout << in::psd(val,options) << std::endl;
+                PrinterInnerFn::print_d(val, options);
             }
             else if (options->show_only_files && !dir_entry.is_directory())
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
-                std::cout << in::psf(entry_val, options)
-                          << in::mult_str(" ",mult_val);
+                PrinterInnerFn::print_f(entry_val, options);
+                fmt::print(in::mult_str(" ", mult_val));
 
                 size_t file_size_str_size = 0;
                 if (options->show_file_size)
                 {
+                    //fmt::print("{}",in::HumanReadable{fs::file_size(dir_entry)});
                     std::cout << in::HumanReadable{fs::file_size(dir_entry)};
                     std::stringstream buffer;
                     buffer << in::HumanReadable{fs::file_size(dir_entry)};
@@ -202,7 +212,7 @@ void Printer::print_as_list(const Options* const options)
                 }
                 if (options->show_permissions)
                 {
-                    std::cout << in::mult_str(" ", MULT_VAL2);
+                    fmt::print(in::mult_str(" ", MULT_VAL2));
                     in::show_permissions(dir_entry.path().string());
                 }
                 if (options->show_last_write_time)
@@ -215,7 +225,7 @@ void Printer::print_as_list(const Options* const options)
                     auto time = get_creation_file_time(dir_entry.path().string());
                     in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
                 }
-                std::cout << std::endl;
+                fmt::println("");
 
             }
         }
@@ -230,14 +240,18 @@ void Printer::print_as_list(const Options* const options)
             auto entry_val = in::prepare_entry_val(arg, options);
             auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
             
-            auto out = show_size ? in::psf(entry_val,options) :
-                in::psd(entry_val,options);
-            std::cout << out << PrinterInnerFn::mult_str(" ",mult_val);
+            if (show_size)
+                in::print_f(entry_val, options);
+            else
+                in::print_d(entry_val, options);
+
+            fmt::print(PrinterInnerFn::mult_str(" ", mult_val));
 
             size_t file_size_str_size = 0;
             if (options->show_file_size && show_size)
             {
                 auto f = fs::file_size(arg.path());
+                //fmt::print("{}", PrinterInnerFn::HumanReadable{f});
                 std::cout << PrinterInnerFn::HumanReadable{f};
                 std::stringstream buffer;
                 buffer << PrinterInnerFn::HumanReadable{f};
@@ -247,7 +261,7 @@ void Printer::print_as_list(const Options* const options)
             if (options->show_permissions)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
-                std::cout << PrinterInnerFn::mult_str(" ", mult_val);
+                fmt::print(PrinterInnerFn::mult_str(" ", mult_val));
                 PrinterInnerFn::show_permissions(arg.path().string());
             }
             if (options->show_last_write_time)//if show_size is true, then functions is used to iterate over files
@@ -261,7 +275,7 @@ void Printer::print_as_list(const Options* const options)
                 in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
             }
             
-            std::cout << std::endl;
+            fmt::println("");
         };
         for (auto& ch : options->sorting_order)
         {
@@ -311,10 +325,15 @@ void Printer::print_as_table(const Options* const options)
             if (separator == '\n')counter = 0;
 
             if (options->show_only_dirs && dir_entry.is_directory())
-                std::cout << in::psd(entry_val,options) + "/" << separator;
+            {
+                PrinterInnerFn::print_d(entry_val, options);
+                fmt::print("/{}", separator);
+            }
             else if (options->show_only_files && !dir_entry.is_directory())
-                std::cout << in::psf(entry_val,options) << separator;
-
+            {
+                PrinterInnerFn::print_f(entry_val, options);
+                fmt::print("{}",separator);
+            }
             counter++;
         }
     };
@@ -335,9 +354,11 @@ void Printer::print_as_table(const Options* const options)
 
             auto entry_val = PrinterInnerFn::prepare_entry_val(arg, options);
             auto dir_val = entry_val + "/";
-            entry_val = show_dirs ? PrinterInnerFn::psd(dir_val,options) :
-                PrinterInnerFn::psf(entry_val,options);
-            std::cout << entry_val << separator;
+            if (show_dirs)
+                PrinterInnerFn::print_d(dir_val, options);
+            else
+                PrinterInnerFn::print_f(entry_val, options);
+            fmt::print("{}",separator);
             counter++;
         };
         for (auto& ch : options->sorting_order)
@@ -398,7 +419,7 @@ void Printer::print_help()
     };
 
     for (auto& l : help)
-        std::cout << l << std::endl;
+        fmt::println(l);
 
     exit(0);
 }

@@ -6,7 +6,15 @@
 #include<list>
 #include<functional>
 #include<sstream>
+#include<iostream> //for HumanReadable. (should be changed and removed in future)
 #include<cmath>
+
+
+#include"fmt/core.h"
+#include"fmt/color.h"
+#define TC (fmt::terminal_color)
+#define FG(x) fmt::fg(TC x)
+#define BG(x) fmt::bg(TC x)
 
 //namespace contains functions used by Printer's namespace ones
 //they aren't dedicated to be used out of Printer namespace
@@ -59,22 +67,25 @@ namespace PrinterInnerFn
 	struct HumanReadable {
 		std::uintmax_t size{};
 	private: friend
-		std::ostream& operator<<(std::ostream& os, HumanReadable hr) {
-		int i{};
-		double mantissa = hr.size;
-		for (; mantissa >= 1024.; mantissa /= 1024., ++i) {}
-		mantissa = std::ceil(mantissa * 10.) / 10.;
+		std::ostream& operator<<(std::ostream& os, HumanReadable hr) 
+		{
+			int i{};
+			double mantissa = hr.size;
+			for (; mantissa >= 1024.; mantissa /= 1024., ++i) {}
+			mantissa = std::ceil(mantissa * 10.) / 10.;
 
-		auto size_type = "BKMGTPE"[i];
-		auto additional_data = size_type != 'B' ? "b" : "";
-		os << mantissa << size_type<<additional_data;
-		return os;
-	}
+			auto size_type = "BKMGTPE"[i];
+			auto additional_data = size_type != 'B' ? "b" : "";
+			os << mantissa << size_type<<additional_data;
+			return os;
+		}
+
 	};
 
-	//prepare string to show colorized or pure
-	extern std::string psf(std::string& str, const Options* const options);
-	extern std::string psd(std::string& str, const Options* const options);
+	
+	//print colored or pure
+	extern void print_d(const std::string& str, const Options* const options);
+	extern void print_f(const std::string& str, const Options* const options);
 
 	extern size_t get_max_dir_str_size(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options* const options);
