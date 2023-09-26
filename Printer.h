@@ -95,6 +95,8 @@ namespace PrinterInnerFn
 
 	extern void printDirectoryTree(const Options* const options,const fs::path& path, size_t level = 0);
 }
+
+
 namespace Printer
 {
 	namespace fs = std::filesystem;

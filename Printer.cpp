@@ -78,7 +78,7 @@ size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, c
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
     {
-        sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
+       sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
     }
 
     return *std::max_element(sizes.begin(), sizes.end());
@@ -88,9 +88,22 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size(const std::string& dir, co
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
     {
-        std::stringstream buffer;
-        buffer << PrinterInnerFn::HumanReadable{fs::file_size(dir_entry)};
-        sizes.push_back(buffer.str().size());
+        if (!fs::is_directory(dir_entry))
+        {
+            try
+            {
+                auto f = fs::file_size(dir_entry);
+                std::stringstream buffer;
+                buffer << PrinterInnerFn::HumanReadable{f};
+                sizes.push_back(buffer.str().size());
+            }
+            catch (const std::exception& e)
+            {
+
+                fmt::print("{}",e.what());
+                sizes.push_back(0);
+            }
+        }
     }
 
     return *std::max_element(sizes.begin(), sizes.end());
@@ -100,9 +113,22 @@ size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::stri
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
     {
-        std::stringstream buffer;
-        buffer << PrinterInnerFn::HumanReadable{fs::file_size(dir_entry)};
-        sizes.push_back(buffer.str().size());
+        if (!fs::is_directory(dir_entry))
+        {
+            try
+            {
+                auto f = fs::file_size(dir_entry);
+                std::stringstream buffer;
+                buffer << PrinterInnerFn::HumanReadable{f};
+                sizes.push_back(buffer.str().size());
+            }
+            catch (const std::exception& e)
+            {
+
+                fmt::print("{}", e.what());
+                sizes.push_back(0);
+            }
+        }
     }
 
     return *std::max_element(sizes.begin(), sizes.end());
@@ -121,7 +147,6 @@ void PrinterInnerFn::print_time(const std::string& time, const Options* const op
 void PrinterInnerFn::show_permissions(const std::string& entry)
 {
     auto p = fs::status(entry).permissions();
-
     using std::filesystem::perms;
     auto show = [=](char op, perms perm)
     {
@@ -171,7 +196,7 @@ void Printer::print_as_list(const Options* const options)
 
     //this variable is required to compute indent between file size and its permissions string
     size_t max_size2 = options->should_compute_formating_size ?
-        options->recursive ? in::get_max_dir_file_size_str_size_recursivly(options->dir, options) :
+       options->recursive ? in::get_max_dir_file_size_str_size_recursivly(options->dir, options) :
         in::get_max_dir_file_size_str_size(options->dir, options): 1;
 
     auto iterate = [&](const fs::directory_entry& dir_entry,
@@ -196,6 +221,7 @@ void Printer::print_as_list(const Options* const options)
             {
                 auto val = entry_val + "/";
                 PrinterInnerFn::print_d(val, options);
+                fmt::println("");
             }
             else if (options->show_only_files && !dir_entry.is_directory())
             {
@@ -207,10 +233,17 @@ void Printer::print_as_list(const Options* const options)
                 if (options->show_file_size)
                 {
                     //fmt::print("{}",in::HumanReadable{fs::file_size(dir_entry)});
-                    std::cout << in::HumanReadable{fs::file_size(dir_entry)};
-                    std::stringstream buffer;
-                    buffer << in::HumanReadable{fs::file_size(dir_entry)};
-                    file_size_str_size = buffer.str().size();
+                    try
+                    {
+                        std::cout << in::HumanReadable{fs::file_size(dir_entry)};
+                        std::stringstream buffer;
+                        buffer << in::HumanReadable{fs::file_size(dir_entry)};
+                        file_size_str_size = buffer.str().size();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        fmt::print("{}", e.what());
+                    }
                 }
                 if (options->show_permissions)
                 {
@@ -227,8 +260,8 @@ void Printer::print_as_list(const Options* const options)
                     auto time = get_creation_file_time(dir_entry.path().string());
                     in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
                 }
+                fmt::println("");
             }
-            fmt::println("");
         }
     };
     
