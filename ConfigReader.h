@@ -14,9 +14,9 @@
 static inline std::string get_default_config()
 {
 	return "table_output_width=5\n" 
-			"dir_color=31\n"
+			"dir_color=32\n"
 			"dir_bg_color=30\n" 
-			"file_color=34\n"
+			"file_color=35\n"
 			"file_bg_color=30\n";
 }
 
@@ -63,7 +63,7 @@ static void read_config_file(Options* options)
 			{
 				auto left = option_line.substr(0, sep);
 				auto right = option_line.substr(sep + 1);
-				auto val = (short)atoi(right.c_str());
+				auto val = (uint8_t)atoi(right.c_str());
 
 				if (val > 0)
 				{
