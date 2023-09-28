@@ -477,7 +477,8 @@ void Printer::print_help()
         "-t show as tree",
         "-a show all information(permissions, sizes, creation/modification times",
         "-P print information without colorizing",
-        "-h print help page and break program execution"
+        "-h print help page and break program execution",
+        "-n print total number of elements in directory"
     };
 
     for (auto& l : help)
