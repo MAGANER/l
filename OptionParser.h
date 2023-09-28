@@ -2,6 +2,7 @@
 #define OPTION_PARSER_H
 #include<string>
 #include<filesystem>
+#include<regex>
 #include"fmt/core.h"
 
 namespace fs = std::filesystem;
@@ -14,6 +15,9 @@ struct Options
 	bool show_as_list, show_as_tree, show_as_table; //only one variable must be true
 	std::string dir; //it's current working directory by default
 
+	std::string regex_val;
+	bool use_regex; //if dir arguments contains regex than checks if directory entry matches with regex
+
 	size_t table_output_width = 4; //default value
 
 	uint8_t dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
@@ -25,7 +29,6 @@ struct Options
 	bool should_compute_formating_size;
 
 	bool print_help;
-
 	bool print_pure;
 
 	inline bool is_regime_showing_ok()
@@ -56,7 +59,8 @@ struct Options
 		should_compute_formating_size(false),
 		print_help(false),
 		print_pure(false),
-		dir(fs::current_path().string())
+		dir(fs::current_path().string()),
+		use_regex(false)
 	{
 		//l -d -f <=> l 
 		/*
@@ -67,6 +71,18 @@ struct Options
 	}
 	~Options() {}
 };
+
+static bool is_valid_regex(const std::string& regex) 
+{
+	try {
+		std::regex re(regex);
+	}
+	catch (const std::regex_error&) 
+	{
+		return false;
+	}
+	return true;
+}
 
 static inline void disable_options(Options* options)
 {
@@ -97,11 +113,8 @@ static Options* parse_args(int argc, char** argv)
 			exit(-1);
 		}
 
-		if (fs::is_directory(arg))
-		{
-			options->dir = arg;
-		}
-		else if (arg == "-d")
+
+		if (arg == "-d")
 		{
 			options->show_only_files = false;
 			options->sorting_order += "d";
@@ -151,6 +164,27 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-P")
 		{
 			options->print_pure = true;
+		}
+		else if (fs::is_directory(arg))
+		{
+			options->dir = arg;
+		}
+		else if (is_valid_regex(arg))
+		{
+			auto end = arg.find_last_of('/');
+			
+			//it's regular expression without path. something like l *.txt
+			//so dir will be current path, because it's already set in options constructor
+			if (end == std::string::npos)
+			{
+				options->regex_val = arg;
+			}
+			else
+			{
+				options->dir = arg.substr(0, end+1);
+				options->regex_val = arg.substr(end + 1);
+			}
+			options->use_regex = true;
 		}
 		else
 		{
