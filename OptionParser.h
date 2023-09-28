@@ -20,6 +20,8 @@ struct Options
 
 	size_t table_output_width = 4; //default value
 
+	bool show_total_number; // of elements in dir
+
 	uint8_t dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
 
 	bool show_file_size,
@@ -60,7 +62,8 @@ struct Options
 		print_help(false),
 		print_pure(false),
 		dir(fs::current_path().string()),
-		use_regex(false)
+		use_regex(false),
+		show_total_number(false)
 	{
 		//l -d -f <=> l 
 		/*
@@ -94,7 +97,7 @@ static inline void disable_options(Options* options)
 }
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a-P").find(arg) != std::string::npos;
+	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a-P-n").find(arg) != std::string::npos;
 }
 static Options* parse_args(int argc, char** argv)
 {
@@ -164,6 +167,10 @@ static Options* parse_args(int argc, char** argv)
 		else if (arg == "-P")
 		{
 			options->print_pure = true;
+		}
+		else if (arg == "-n")
+		{
+			options->show_total_number = true;
 		}
 		else if (fs::is_directory(arg))
 		{
