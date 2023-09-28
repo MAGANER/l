@@ -6,6 +6,11 @@ In ~/.config/ .lconfig file is created at first run of program<br>
 and it contains data about colors and number of element per line for table output.<br>
 P.S. Every option can be customized in future.
 
+# Note about regular expression support
+Let's imagine you want to list all txt files in current dir, so you might think to use ```l *.txt```<br>,
+and after you type this command nothing happens. You need to use ```l .*.txt```, because you can use "real"<br>
+regexes to sort apllication's output.<br> 
+
 # help page
 Overall, this program is dedicated to show directory's content and its properties.<br>
 It can show file/dir permissions, size, creation and modification time.<br>
