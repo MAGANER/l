@@ -7,6 +7,7 @@
 #include<sstream>
 #include<iostream> //for HumanReadable. (should be changed and removed in future)
 #include<cmath>
+#include<regex>
 
 
 #include"fmt/core.h"
@@ -85,6 +86,8 @@ namespace PrinterInnerFn
 	//print colored or pure
 	extern void print_d(const std::string& str, const Options* const options);
 	extern void print_f(const std::string& str, const Options* const options);
+	
+	extern bool does_matches(const std::string& str, const std::string& regex);
 
 	extern size_t get_max_dir_str_size(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options* const options);

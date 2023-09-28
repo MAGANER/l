@@ -169,6 +169,7 @@ void PrinterInnerFn::printDirectoryTree(const Options* const options,const fs::p
     for (const auto& entry : fs::directory_iterator(path)) 
     {
         auto entry_val = cut_quotas(entry.path().filename().string());
+
         if (fs::is_directory(entry)) 
         {
             fmt::print("{}", std::string(level, '-'));
@@ -206,6 +207,15 @@ void Printer::print_as_list(const Options* const options)
         namespace in = PrinterInnerFn;
           
         auto entry_val = in::prepare_entry_val(dir_entry, options);
+
+
+        //fmt::println("{} {}", entry_val, options->regex_val);
+        //if it doesn't match the expression just break the execution
+
+
+        if (options->use_regex and !in::does_matches(entry_val, options->regex_val))
+            return;
+       
         //if shouldn't sort just print
         if (options->sort)
         {
@@ -345,6 +355,11 @@ void Printer::print_as_table(const Options* const options)
         namespace in = PrinterInnerFn;
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
+
+        //if you use regex, then break running in case entry val doesn't match regular expression
+        if (options->use_regex and !in::does_matches(entry_val, options->regex_val))
+            return;
+
         if (options->sort)
         {
             if (dir_entry.is_directory())
@@ -386,6 +401,10 @@ void Printer::print_as_table(const Options* const options)
             if (separator == '\n')counter = 0;
 
             auto entry_val = PrinterInnerFn::prepare_entry_val(arg, options);
+            //if you use regex, then break running in case entry val doesn't match regular expression
+            if (options->use_regex and !PrinterInnerFn::does_matches(entry_val, options->regex_val))
+                return;
+
             auto dir_val = entry_val + "/";
             if (show_dirs)
                 PrinterInnerFn::print_d(dir_val, options);
@@ -453,4 +472,10 @@ void Printer::print_help()
         fmt::println("{}", l);
 
     exit(0);
+}
+
+bool PrinterInnerFn::does_matches(const std::string& str, const std::string& regex)
+{
+    std::regex _regex(regex);
+    return std::regex_search(str, _regex);
 }
