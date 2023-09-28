@@ -336,6 +336,12 @@ void Printer::print_as_list(const Options* const options)
         }
     };
 
+
+    if (options->show_total_number)
+    {
+        auto n = PrinterInnerFn::compute_dir_elements_number(options->dir, options->recursive);
+        fmt::print(fmt::fg(fmt::terminal_color::white)| fmt::bg(fmt::terminal_color::black), "total {}\n", n);
+    }
     if (options->recursive)
     {
         PrinterInnerFn::iterate_over_dir_recursively(options, iterate, iterate_sorted);
@@ -428,6 +434,12 @@ void Printer::print_as_table(const Options* const options)
         }
     };
    
+
+    if (options->show_total_number)
+    {
+        auto n = PrinterInnerFn::compute_dir_elements_number(options->dir, options->recursive);
+        fmt::println("total {}", n);
+    }
     if (options->recursive)
     {
         PrinterInnerFn::iterate_over_dir_recursively(options, iterate, iterate_sorted);
@@ -478,4 +490,18 @@ bool PrinterInnerFn::does_matches(const std::string& str, const std::string& reg
 {
     std::regex _regex(regex);
     return std::regex_search(str, _regex);
+}
+size_t PrinterInnerFn::compute_dir_elements_number(const std::string& path, bool rec)
+{
+    using std::filesystem::directory_iterator;
+    using std::filesystem::recursive_directory_iterator;
+
+    using fp = bool (*)(const std::filesystem::path&);
+
+    if(!rec)
+        return std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_regular_file) +
+               std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_directory);
+    else
+        return std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_regular_file) +
+               std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_directory);
 }

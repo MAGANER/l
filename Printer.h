@@ -89,6 +89,8 @@ namespace PrinterInnerFn
 	
 	extern bool does_matches(const std::string& str, const std::string& regex);
 
+	extern size_t compute_dir_elements_number(const std::string& path, bool rec);
+
 	extern size_t get_max_dir_str_size(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_str_size_recursivly(const std::string& dir,const Options* const options);
 	extern size_t get_max_dir_file_size_str_size(const std::string& dir, const Options* const options);
