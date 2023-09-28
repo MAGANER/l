@@ -277,7 +277,7 @@ void Printer::print_as_list(const Options* const options)
             if (show_size)
                 in::print_f(entry_val, options);
             else
-                in::print_d(entry_val, options);
+                in::print_d(entry_val+"/", options);
 
             fmt::print("{}", PrinterInnerFn::mult_str(" ", mult_val));
 
