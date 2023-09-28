@@ -25,8 +25,13 @@ If you don't provide any path as argument, l will show content of current dir,<b
 otherwise it will show content of provided directory.<br>
 
 ## Usage
+### Common examples
 ```$ l```<br>
 ```$ l -flag1 -flagn```<br>
+
+### Particular examples
+```$ l ~/notes/.*.txt -f``` print all txt files in notes dir<br>
+```$ l ../ -d ```<br>
 
 List of flags:<br>
 ```-d``` show only directories<br>
@@ -43,3 +48,4 @@ List of flags:<br>
 ```-a``` show all information(permissions, size, creation/modification time)<br>
 ```-P``` print without colorizing, use standard color codes<br>
 ```-h``` print help page and break program execution<br>
+```-n``` print total number of elements in directory<br>
