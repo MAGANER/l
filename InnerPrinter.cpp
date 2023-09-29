@@ -2,22 +2,18 @@
 
 std::string InnerPrinter::cut_quotas(const std::string& str)
 {
+    //erase " " at the beginning and the end of string
     return str.substr(0, str.size());
 }
 void InnerPrinter::erase_sub(std::string& str, const std::string& sub)
 {
+    //erase substring from str
+
     auto pos = str.find(sub);
     if (pos != std::string::npos)
     {
         str.erase(pos, sub.length());
     }
-}
-std::string InnerPrinter::mult_str(const std::string& str, size_t n)
-{
-    std::string ns;
-    for (size_t i = 0; i < n; i++)
-        ns += str;
-    return ns;
 }
 std::string InnerPrinter::prepare_entry_val(const fs::directory_entry& dir_entry, unmutable options)
 {

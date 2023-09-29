@@ -1,5 +1,7 @@
 #include"Printer.h"
 #define MULT_VAL2 max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1
+#define SPACE_PAD std::string(MULT_VAL2,' ')
+#define PAD(x) std::string(x,' ')
 
 void Printer::print_as_list(const Options* const options)
 {
@@ -46,7 +48,7 @@ void Printer::print_as_list(const Options* const options)
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
                 InnerPrinter::print_f(entry_val, options);
-                fmt::print("{}",in::mult_str(" ", mult_val));
+                fmt::print("{}",PAD(mult_val));
 
                 size_t file_size_str_size = 0;
                 if (options->show_file_size)
@@ -66,18 +68,18 @@ void Printer::print_as_list(const Options* const options)
                 }
                 if (options->show_permissions)
                 {
-                    fmt::print("{}",in::mult_str(" ", MULT_VAL2));
+                    fmt::print("{}", SPACE_PAD);
                     in::show_permissions(dir_entry.path().string());
                 }
                 if (options->show_last_write_time)
                 {
                     auto time = get_modification_file_time(dir_entry.path().string());
-                    in::print_time(" mod time: " + time, options, in::mult_str(" ", MULT_VAL2));
+                    in::print_time(" mod time: " + time, options, SPACE_PAD);
                 }
                 if (options->show_creation_time)
                 {
                     auto time = get_creation_file_time(dir_entry.path().string());
-                    in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
+                    in::print_time(" cre time: " + time, options, SPACE_PAD);
                 }
                 fmt::println("");
             }
@@ -98,7 +100,7 @@ void Printer::print_as_list(const Options* const options)
             else
                 in::print_d(entry_val+"/", options);
 
-            fmt::print("{}", InnerPrinter::mult_str(" ", mult_val));
+            fmt::print("{}", PAD(mult_val));
 
             size_t file_size_str_size = 0;
             if (options->show_file_size && show_size)
@@ -114,18 +116,18 @@ void Printer::print_as_list(const Options* const options)
             if (options->show_permissions)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
-                fmt::print("{}", InnerPrinter::mult_str(" ", mult_val));
+                fmt::print("{}", PAD(mult_val));
                 InnerPrinter::show_permissions(arg.path().string());
             }
             if (options->show_last_write_time)//if show_size is true, then functions is used to iterate over files
             {
                 auto time = get_modification_file_time(arg.path().string());
-                in::print_time(" mod time: " + time, options, in::mult_str(" ", MULT_VAL2));
+                in::print_time(" mod time: " + time, options, SPACE_PAD);
             }
             if (options->show_creation_time)
             {
                 auto time = get_creation_file_time(arg.path().string());
-                in::print_time(" cre time: " + time, options, in::mult_str(" ", MULT_VAL2));
+                in::print_time(" cre time: " + time, options, SPACE_PAD);
             }
             
             fmt::println("");
