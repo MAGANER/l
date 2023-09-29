@@ -10,6 +10,14 @@ int main(int argc, char** argv)
 	auto options = parse_args(argc, argv);
 	read_config_file(options);
 
+	//fixes problem i found on arch linux
+	//(on windows it is ignored and nothing is printed)
+	if (!fs::exists(options->dir))
+	{
+		fmt::print("Error: {} doesn't exist!", options->dir);
+		exit(-1);
+	}
+
 	//check there are no exluding flags
 	//because you can show only as list, table or tree
 	if (!options->is_regime_showing_ok() && !options->is_default_output_mode())
