@@ -52,10 +52,10 @@ namespace InnerPrinter
 
 
 	//block of special helper functions
-	extern inline std::string cut_quotas(const std::string& str);
+	extern std::string cut_quotas(const std::string& str);
 	extern void erase_sub(std::string& str, const std::string& sub);
-	extern inline std::string mult_str(const std::string& str, size_t n);
-	extern inline  std::string prepare_entry_val(const fs::directory_entry& dir_entry, unmutable options);
+	extern std::string mult_str(const std::string& str, size_t n);
+	extern std::string prepare_entry_val(const fs::directory_entry& dir_entry, unmutable options);
 	///
 
 
