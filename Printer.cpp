@@ -1,195 +1,9 @@
 #include"Printer.h"
-
-std::string PrinterInnerFn::cut_quotas(const std::string& str)
-{
-    return str.substr(0, str.size());
-}
-void PrinterInnerFn::erase_sub(std::string& str, const std::string& sub)
-{
-    auto pos = str.find(sub);
-    if (pos != std::string::npos)
-    {
-        str.erase(pos, sub.length());
-    }
-}
-void PrinterInnerFn::iterate_over_dir(const Options* const options,
-                  const fn& iterate,
-                  const fn1& iterate_sorted)
-{
-    std::list<fs::directory_entry> dirs, files;
-
-    for (const fs::directory_entry& dir_entry : fs::directory_iterator(options->dir))
-    {
-        iterate(dir_entry, dirs, files);
-    }
-
-    if (options->sort)
-        iterate_sorted(dirs, files);
-}
-void PrinterInnerFn::iterate_over_dir_recursively(const Options* const options,
-                    const fn& iterate,
-                    const fn1& iterate_sorted)
-{
-    std::list<fs::directory_entry> dirs, files;
-
-    for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(options->dir))
-    {
-        iterate(dir_entry, dirs, files);
-    }
-
-    if (options->sort)
-        iterate_sorted(dirs, files);
-}
-void PrinterInnerFn::print_d(const std::string& str, const Options* const options)
-{
-    if (options->print_pure)
-    {
-        fmt::print("{}", str);
-    }
-    else
-    {
-        fmt::print(FG(options->dir_color) | BG(options->dir_bg_color),str);
-    }
-}
-void PrinterInnerFn::print_f(const std::string& str, const Options* const options)
-{
-    if (options->print_pure)
-    {
-        fmt::print("{}", str);
-    }
-    else
-    {
-        fmt::print(FG(options->file_color) | BG(options->file_bg_color), str);
-    }
-}
-
-size_t PrinterInnerFn::get_max_dir_str_size(const std::string& dir,const Options* const options)
-{
-    std::vector<size_t> sizes;
-    for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
-    {
-        sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
-    }
-
-    return *std::max_element(sizes.begin(), sizes.end());
-}
-size_t PrinterInnerFn::get_max_dir_str_size_recursivly(const std::string& dir, const Options* const options)
-{
-    std::vector<size_t> sizes;
-    for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
-    {
-       sizes.push_back(PrinterInnerFn::prepare_entry_val(dir_entry, options).size());
-    }
-
-    return *std::max_element(sizes.begin(), sizes.end());
-}
-size_t PrinterInnerFn::get_max_dir_file_size_str_size(const std::string& dir, const Options* const options)
-{
-    std::vector<size_t> sizes;
-    for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
-    {
-        if (!fs::is_directory(dir_entry))
-        {
-            try
-            {
-                auto f = fs::file_size(dir_entry);
-                std::stringstream buffer;
-                buffer << PrinterInnerFn::HumanReadable{f};
-                sizes.push_back(buffer.str().size());
-            }
-            catch (const std::exception& e)
-            {
-
-                fmt::print("{}",e.what());
-                sizes.push_back(0);
-            }
-        }
-    }
-
-    return *std::max_element(sizes.begin(), sizes.end());
-}
-size_t PrinterInnerFn::get_max_dir_file_size_str_size_recursivly(const std::string& dir, const Options* const options)
-{
-    std::vector<size_t> sizes;
-    for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
-    {
-        if (!fs::is_directory(dir_entry))
-        {
-            try
-            {
-                auto f = fs::file_size(dir_entry);
-                std::stringstream buffer;
-                buffer << PrinterInnerFn::HumanReadable{f};
-                sizes.push_back(buffer.str().size());
-            }
-            catch (const std::exception& e)
-            {
-
-                fmt::print("{}", e.what());
-                sizes.push_back(0);
-            }
-        }
-    }
-
-    return *std::max_element(sizes.begin(), sizes.end());
-}
-
-void PrinterInnerFn::print_time(const std::string& time, const Options* const options, const std::string& space)
-{
-    if ((options->show_permissions && !options->show_file_size) ||
-        (options->show_permissions && options->show_file_size))
-        fmt::print("  ");
-    else
-        fmt::print("{}",space);
-
-    fmt::print("{}", time);
-}
-void PrinterInnerFn::show_permissions(const std::string& entry)
-{
-    auto p = fs::status(entry).permissions();
-    using std::filesystem::perms;
-    auto show = [=](char op, perms perm)
-    {
-        fmt::print("{}", perms::none == (perm & p) ? '-' : op);
-    };
-
-    fmt::print(" ");
-    show('r', perms::owner_read);
-    show('w', perms::owner_write);
-    show('x', perms::owner_exec);
-    show('r', perms::group_read);
-    show('w', perms::group_write);
-    show('x', perms::group_exec);
-    show('r', perms::others_read);
-    show('w', perms::others_write);
-    show('x', perms::others_exec);
-}
-void PrinterInnerFn::printDirectoryTree(const Options* const options,const fs::path& path, size_t level)
-{
-    for (const auto& entry : fs::directory_iterator(path)) 
-    {
-        auto entry_val = cut_quotas(entry.path().filename().string());
-
-        if (fs::is_directory(entry)) 
-        {
-            fmt::print("{}", std::string(level, '-'));
-            print_d(entry_val, options);
-            fmt::println("");
-            printDirectoryTree(options,entry, level + 1);
-        }
-        else 
-        {
-            fmt::print("{}",std::string(level, ' '));
-            print_f(entry_val, options);
-            fmt::println("");
-        }
-    }
-}
-
 #define MULT_VAL2 max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1
+
 void Printer::print_as_list(const Options* const options)
 {
-    namespace in = PrinterInnerFn;
+    namespace in = InnerPrinter;
     //this variable is required to compute indent between file name and its size
     size_t max_size = options->should_compute_formating_size ?
         options->recursive ? in::get_max_dir_str_size_recursivly(options->dir, options) :
@@ -204,7 +18,7 @@ void Printer::print_as_list(const Options* const options)
         std::list<fs::directory_entry>& dirs,
         std::list<fs::directory_entry>& files)
     {
-        namespace in = PrinterInnerFn;
+        namespace in = InnerPrinter;
           
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
@@ -230,13 +44,13 @@ void Printer::print_as_list(const Options* const options)
             if (options->show_only_dirs && dir_entry.is_directory())
             {
                 auto val = entry_val + "/";
-                PrinterInnerFn::print_d(val, options);
+                InnerPrinter::print_d(val, options);
                 fmt::println("");
             }
             else if (options->show_only_files && !dir_entry.is_directory())
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
-                PrinterInnerFn::print_f(entry_val, options);
+                InnerPrinter::print_f(entry_val, options);
                 fmt::print("{}",in::mult_str(" ", mult_val));
 
                 size_t file_size_str_size = 0;
@@ -245,9 +59,9 @@ void Printer::print_as_list(const Options* const options)
                     //fmt::print("{}",in::HumanReadable{fs::file_size(dir_entry)});
                     try
                     {
-                        std::cout << in::HumanReadable{fs::file_size(dir_entry)};
+                        std::cout << HumanReadable{fs::file_size(dir_entry)};
                         std::stringstream buffer;
-                        buffer << in::HumanReadable{fs::file_size(dir_entry)};
+                        buffer << HumanReadable{fs::file_size(dir_entry)};
                         file_size_str_size = buffer.str().size();
                     }
                     catch (const std::exception& e)
@@ -289,24 +103,24 @@ void Printer::print_as_list(const Options* const options)
             else
                 in::print_d(entry_val+"/", options);
 
-            fmt::print("{}", PrinterInnerFn::mult_str(" ", mult_val));
+            fmt::print("{}", InnerPrinter::mult_str(" ", mult_val));
 
             size_t file_size_str_size = 0;
             if (options->show_file_size && show_size)
             {
                 auto f = fs::file_size(arg.path());
-                //fmt::print("{}", PrinterInnerFn::HumanReadable{f});
-                std::cout << PrinterInnerFn::HumanReadable{f};
+                //fmt::print("{}", InnerPrinter::HumanReadable{f});
+                std::cout << HumanReadable{f};
                 std::stringstream buffer;
-                buffer << PrinterInnerFn::HumanReadable{f};
+                buffer << HumanReadable{f};
                 file_size_str_size = buffer.str().size();
 
             }
             if (options->show_permissions)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
-                fmt::print("{}", PrinterInnerFn::mult_str(" ", mult_val));
-                PrinterInnerFn::show_permissions(arg.path().string());
+                fmt::print("{}", InnerPrinter::mult_str(" ", mult_val));
+                InnerPrinter::show_permissions(arg.path().string());
             }
             if (options->show_last_write_time)//if show_size is true, then functions is used to iterate over files
             {
@@ -339,15 +153,15 @@ void Printer::print_as_list(const Options* const options)
 
     if (options->show_total_number)
     {
-        auto n = PrinterInnerFn::compute_dir_elements_number(options->dir, options->recursive);
+        auto n = InnerPrinter::compute_dir_elements_number(options->dir, options->recursive);
         fmt::print(fmt::fg(fmt::terminal_color::white)| fmt::bg(fmt::terminal_color::black), "total {}\n", n);
     }
     if (options->recursive)
     {
-        PrinterInnerFn::iterate_over_dir_recursively(options, iterate, iterate_sorted);
+        InnerPrinter::iterate_over_dir_recursively(options, iterate, iterate_sorted);
     }
     else
-        PrinterInnerFn::iterate_over_dir(options, iterate, iterate_sorted);
+        InnerPrinter::iterate_over_dir(options, iterate, iterate_sorted);
 
 
 }
@@ -358,7 +172,7 @@ void Printer::print_as_table(const Options* const options)
         std::list<fs::directory_entry>& dirs,
         std::list<fs::directory_entry>& files)
     {
-        namespace in = PrinterInnerFn;
+        namespace in = InnerPrinter;
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
 
@@ -380,12 +194,12 @@ void Printer::print_as_table(const Options* const options)
 
             if (options->show_only_dirs && dir_entry.is_directory())
             {
-                PrinterInnerFn::print_d(entry_val, options);
+                InnerPrinter::print_d(entry_val, options);
                 fmt::print("/{}", separator);
             }
             else if (options->show_only_files && !dir_entry.is_directory())
             {
-                PrinterInnerFn::print_f(entry_val, options);
+                InnerPrinter::print_f(entry_val, options);
                 fmt::print("{}",separator);
             }
             counter++;
@@ -406,16 +220,16 @@ void Printer::print_as_table(const Options* const options)
             separator = counter == options->table_output_width ? '\n' : ' ';
             if (separator == '\n')counter = 0;
 
-            auto entry_val = PrinterInnerFn::prepare_entry_val(arg, options);
+            auto entry_val = InnerPrinter::prepare_entry_val(arg, options);
             //if you use regex, then break running in case entry val doesn't match regular expression
-            if (options->use_regex and !PrinterInnerFn::does_matches(entry_val, options->regex_val))
+            if (options->use_regex and !InnerPrinter::does_matches(entry_val, options->regex_val))
                 return;
 
             auto dir_val = entry_val + "/";
             if (show_dirs)
-                PrinterInnerFn::print_d(dir_val, options);
+                InnerPrinter::print_d(dir_val, options);
             else
-                PrinterInnerFn::print_f(entry_val, options);
+                InnerPrinter::print_f(entry_val, options);
             fmt::print("{}",separator);
             counter++;
         };
@@ -437,19 +251,19 @@ void Printer::print_as_table(const Options* const options)
 
     if (options->show_total_number)
     {
-        auto n = PrinterInnerFn::compute_dir_elements_number(options->dir, options->recursive);
+        auto n = InnerPrinter::compute_dir_elements_number(options->dir, options->recursive);
         fmt::println("total {}", n);
     }
     if (options->recursive)
     {
-        PrinterInnerFn::iterate_over_dir_recursively(options, iterate, iterate_sorted);
+        InnerPrinter::iterate_over_dir_recursively(options, iterate, iterate_sorted);
     }
     else
-        PrinterInnerFn::iterate_over_dir(options, iterate, iterate_sorted);
+        InnerPrinter::iterate_over_dir(options, iterate, iterate_sorted);
 }
 void Printer::print_as_tree(const Options* const options)
 {
-    PrinterInnerFn::printDirectoryTree(options,options->dir);
+    InnerPrinter::printDirectoryTree(options,options->dir);
 }
 void Printer::print_help()
 {
@@ -485,24 +299,4 @@ void Printer::print_help()
         fmt::println("{}", l);
 
     exit(0);
-}
-
-bool PrinterInnerFn::does_matches(const std::string& str, const std::string& regex)
-{
-    std::regex _regex(regex);
-    return std::regex_search(str, _regex);
-}
-size_t PrinterInnerFn::compute_dir_elements_number(const std::string& path, bool rec)
-{
-    using std::filesystem::directory_iterator;
-    using std::filesystem::recursive_directory_iterator;
-
-    using fp = bool (*)(const std::filesystem::path&);
-
-    if(!rec)
-        return std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_regular_file) +
-               std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_directory);
-    else
-        return std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_regular_file) +
-               std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_directory);
 }
