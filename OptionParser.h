@@ -86,7 +86,6 @@ static bool is_valid_regex(const std::string& regex)
 	}
 	return true;
 }
-
 static inline void disable_options(Options* options)
 {
 	//disable modes that aren't suitable to show information such as file sizes

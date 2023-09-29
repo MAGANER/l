@@ -37,9 +37,10 @@ static std::string get_user_home_dir()
 	return std::string(dir);
 #endif
 }
+
 static void read_config_file(Options* options)
 {
-	//if there is config file, than create it
+	//if there is no config file, than create it
 	//otherwise read and save options
 
 
