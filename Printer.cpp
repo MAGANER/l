@@ -6,13 +6,13 @@ void Printer::print_as_list(const Options* const options)
     namespace in = InnerPrinter;
     //this variable is required to compute indent between file name and its size
     size_t max_size = options->should_compute_formating_size ?
-        options->recursive ? in::get_max_dir_str_size_recursivly(options->dir, options) :
-        in::get_max_dir_str_size(options->dir, options) : 1;
+        options->recursive ? in::max_dir_size_rec(options->dir, options) :
+        in::max_dir_size(options->dir, options) : 1;
 
     //this variable is required to compute indent between file size and its permissions string
     size_t max_size2 = options->should_compute_formating_size ?
-       options->recursive ? in::get_max_dir_file_size_str_size_recursivly(options->dir, options) :
-        in::get_max_dir_file_size_str_size(options->dir, options): 1;
+       options->recursive ? in::max_file_in_dir_rec(options->dir, options) :
+        in::max_file_in_dir(options->dir, options): 1;
 
     auto iterate = [&](const fs::directory_entry& dir_entry,
         std::list<fs::directory_entry>& dirs,

@@ -83,7 +83,7 @@ void InnerPrinter::print_f(const std::string& str, unmutable options)
     }
 }
 
-size_t InnerPrinter::get_max_dir_str_size(const std::string& dir, unmutable options)
+size_t InnerPrinter::max_dir_size(const std::string& dir, unmutable options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
@@ -93,7 +93,7 @@ size_t InnerPrinter::get_max_dir_str_size(const std::string& dir, unmutable opti
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t InnerPrinter::get_max_dir_str_size_recursivly(const std::string& dir, unmutable options)
+size_t InnerPrinter::max_dir_size_rec(const std::string& dir, unmutable options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))
@@ -103,7 +103,7 @@ size_t InnerPrinter::get_max_dir_str_size_recursivly(const std::string& dir, unm
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t InnerPrinter::get_max_dir_file_size_str_size(const std::string& dir, unmutable options)
+size_t InnerPrinter::max_file_in_dir(const std::string& dir, unmutable options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(dir))
@@ -128,7 +128,7 @@ size_t InnerPrinter::get_max_dir_file_size_str_size(const std::string& dir, unmu
 
     return *std::max_element(sizes.begin(), sizes.end());
 }
-size_t InnerPrinter::get_max_dir_file_size_str_size_recursivly(const std::string& dir, unmutable options)
+size_t InnerPrinter::max_file_in_dir_rec(const std::string& dir, unmutable options)
 {
     std::vector<size_t> sizes;
     for (const fs::directory_entry& dir_entry : fs::recursive_directory_iterator(dir))

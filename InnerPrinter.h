@@ -77,10 +77,20 @@ namespace InnerPrinter
 
 	extern size_t compute_dir_elements_number(const std::string& path, bool rec);
 
-	extern size_t get_max_dir_str_size(const std::string& dir, unmutable options);
-	extern size_t get_max_dir_str_size_recursivly(const std::string& dir, unmutable options);
-	extern size_t get_max_dir_file_size_str_size(const std::string& dir, unmutable options);
-	extern size_t get_max_dir_file_size_str_size_recursivly(const std::string& dir, unmutable options);
+
+	//these function computes max size of directory's string view
+	extern size_t max_dir_size(const std::string& dir, unmutable options);
+
+	//recursive version of `max_dir_size_rec`
+	extern size_t max_dir_size_rec(const std::string& dir, unmutable options);
+
+	//these function finds the size of the longest file name in directory
+	extern size_t max_file_in_dir(const std::string& dir, unmutable options);
+
+	//recursive version of `max_file_in_dir`
+	extern size_t max_file_in_dir_rec(const std::string& dir, unmutable options);
+
+
 	extern void show_permissions(const std::string& entry);
 	extern void print_time(const std::string& time, unmutable options, const std::string& space);
 
