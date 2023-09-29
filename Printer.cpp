@@ -17,16 +17,11 @@ void Printer::print_as_list(const Options* const options)
     auto iterate = [&](const fs::directory_entry& dir_entry,
         std::list<fs::directory_entry>& dirs,
         std::list<fs::directory_entry>& files)
-    {
-        namespace in = InnerPrinter;
-          
+    {          
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
 
-        //fmt::println("{} {}", entry_val, options->regex_val);
         //if it doesn't match the expression just break the execution
-
-
         if (options->use_regex and !in::does_matches(entry_val, options->regex_val))
             return;
        
