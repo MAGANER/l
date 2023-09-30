@@ -1,6 +1,8 @@
 #include"OptionParser.h"
 #include"Printer.h"
 #include"ConfigReader.h"
+#include"DirExist.h"
+
 #include<clocale>
 
 int main(int argc, char** argv)
@@ -12,7 +14,7 @@ int main(int argc, char** argv)
 
 	//fixes problem i found on arch linux
 	//(on windows it is ignored and nothing is printed)
-	if (!fs::exists(options->dir))
+	if (dexist(options->dir.c_str()))
 	{
 		fmt::print("Error: {} doesn't exist!", options->dir);
 		exit(-1);
