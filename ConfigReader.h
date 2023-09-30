@@ -17,7 +17,9 @@ static inline std::string get_default_config()
 			"dir_color=32\n"
 			"dir_bg_color=30\n" 
 			"file_color=35\n"
-			"file_bg_color=30\n";
+			"file_bg_color=30\n"
+			"file_size_color=33\n"
+			"file_size_bg_color=30\n";
 }
 
 
@@ -87,6 +89,14 @@ static void read_config_file(Options* options)
 					else if (left == "file_bg_color=")
 					{
 						options->file_bg_color = val;
+					}
+					else if (left == "file_size_color")
+					{
+						options->file_size_color = val;
+					}
+					else if (left == "file_size_bg_color")
+					{
+						options->file_size_bg_color = val;
 					}
 				}
 			}

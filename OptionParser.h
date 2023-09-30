@@ -86,10 +86,12 @@ struct Options
 	size_t table_output_width = 4; //strings number in one line.(option of table output mode)
 
 	//color values
-	uint8_t dir_color = 94, 
-		    dir_bg_color = 40, 
-		    file_color = 34, 
-	        file_bg_color = 40;
+	uint8_t dir_color = 32,
+		dir_bg_color = 30,
+		file_color = 35,
+		file_bg_color = 30,
+		file_size_color = 33,
+		file_size_bg_color = 30;
 
 	inline bool is_regime_showing_ok()
 	{
