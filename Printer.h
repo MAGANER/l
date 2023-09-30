@@ -1,7 +1,7 @@
 #ifndef PRINTER_H
 #define PRINTER_H
-
 #include"InnerPrinter.h"
+
 namespace Printer
 {
 	namespace fs = std::filesystem;

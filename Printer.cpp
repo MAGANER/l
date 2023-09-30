@@ -54,13 +54,9 @@ void Printer::print_as_list(const Options* const options)
                 size_t file_size_str_size = 0;
                 if (SHOW_FILE_SIZE)
                 {
-                    //fmt::print("{}",in::HumanReadable{fs::file_size(dir_entry)});
                     try
                     {
-                        std::cout << HumanReadable{fs::file_size(dir_entry)};
-                        std::stringstream buffer;
-                        buffer << HumanReadable{fs::file_size(dir_entry)};
-                        file_size_str_size = buffer.str().size();
+                        file_size_str_size = in::print_size(dir_entry.path().string(), options).size();
                     }
                     catch (const std::exception& e)
                     {
@@ -70,7 +66,7 @@ void Printer::print_as_list(const Options* const options)
                 if (SHOW_PERMISSION)
                 {
                     fmt::print("{}", SPACE_PAD);
-                    in::show_permissions(dir_entry.path().string());
+                    in::show_permissions(dir_entry.path().string(), options);
                 }
                 if (SHOW_WRITE_TIME)
                 {
@@ -106,19 +102,13 @@ void Printer::print_as_list(const Options* const options)
             size_t file_size_str_size = 0;
             if (SHOW_FILE_SIZE && show_size)
             {
-                auto f = fs::file_size(arg.path());
-                //fmt::print("{}", InnerPrinter::HumanReadable{f});
-                std::cout << HumanReadable{f};
-                std::stringstream buffer;
-                buffer << HumanReadable{f};
-                file_size_str_size = buffer.str().size();
-
+                file_size_str_size = in::print_size(arg.path().string(),options).size();
             }
             if (SHOW_PERMISSION)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
                 fmt::print("{}", PAD(mult_val));
-                InnerPrinter::show_permissions(arg.path().string());
+                InnerPrinter::show_permissions(arg.path().string(),options);
             }
             if (SHOW_WRITE_TIME)//if show_size is true, then functions is used to iterate over files
             {
