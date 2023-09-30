@@ -21,7 +21,11 @@ static inline std::string get_default_config()
 			"file_size_color=33\n"
 			"file_size_bg_color=30\n"
 			"perm_color=34\n"
-			"perm_bg_color=30\n";
+			"perm_bg_color=30\n"
+			"mod_time_color=35\n"
+			"mod_time_bg_color=30\n",
+			"creat_time_color=36\n"
+			"creat_time_bg_color=30\n";
 }
 
 
@@ -107,6 +111,27 @@ static void read_config_file(Options* options)
 					else if (left == "perm_bg_color")
 					{
 						options->perm_bg_color = val;
+					}
+					else if (left == "mod_time_color")
+					{
+						options->mod_time_color = val;
+					}
+					else if (left == "mode_time_bg_color")
+					{
+						options->mod_time_bg_color = val;
+					}
+					else if (left == "creat_time_color")
+					{
+						options->creat_time_color = val;
+					}
+					else if (left == "creat_time_bg_color")
+					{
+						options->creat_time_bg_color = val;
+					}
+					else
+					{
+						fmt::print("Error: {} is unrecognised option!",left);
+						exit(-1);
 					}
 				}
 			}

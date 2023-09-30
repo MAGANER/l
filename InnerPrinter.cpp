@@ -205,7 +205,12 @@ void InnerPrinter::print_time(const std::string& time, unmutable options, const 
     else
         fmt::print("{}", space);
 
-    fmt::print("{}", time);
+    if (PRINT_PURE)
+        fmt::print("{}", time);
+    else if (time.find("mod") != std::string::npos)
+        fmt::print(FG(options->mod_time_color) | BG(options->mod_time_bg_color), "{}", time);
+    else
+        fmt::print(FG(options->creat_time_color) | BG(options->creat_time_bg_color), "{}", time);
 }
 void InnerPrinter::show_permissions(const std::string& entry, unmutable options)
 {
