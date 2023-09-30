@@ -1,5 +1,6 @@
 # l
 Alternative to ls classical application
+(I made everything i wanted, so i think i won't do anything with repo for now, but it's still open for contributions)
 
 # Output customization
 In ~/.config/ .lconfig file is created at first run of program<br>
@@ -8,6 +9,27 @@ and it contains data about colors and number of element per line for table outpu
 ## Default keys
 If you want to always show specific information, then you can edit your .bashrc file and simply add alias.<br>
 For example, you want to see total number of elements in directory everytime you run l - use ```alias l="l -n "```.
+
+# How to build
+## Linux
+```
+git clone --recursive https://github.com/MAGANER/l.git
+mkdir build
+cd build
+cmake ../
+make
+chmod +x l
+```
+
+## Windows
+Download build from release page or follow next commands 
+```
+git clone --recursive https://github.com/MAGANER/l.git
+mkdir build
+cd build
+cmake ../
+#then you open .sln file and build this program
+```
 
 # Note about regular expression support
 Let's imagine you want to list all txt files in current dir, so you might think to use ```l *.txt```<br>,
