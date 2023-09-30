@@ -1,8 +1,8 @@
 #ifndef INNER_PRINTER_H
 #define INNER_PRINTER_H
-
 #include"OptionParser.h"
 #include"FileTimeChecker.h"
+
 #include<list>
 #include<functional>
 #include<sstream>
@@ -17,25 +17,6 @@
 #define BG(x) fmt::bg((fmt::terminal_color) x)
 
 #define unmutable const Options* const
-
-//https://en.cppreference.com/w/cpp/filesystem/file_size
-struct HumanReadable {
-	std::uintmax_t size{};
-private: friend
-	std::ostream& operator<<(std::ostream& os, HumanReadable hr)
-{
-	int i{};
-	double mantissa = hr.size;
-	for (; mantissa >= 1024.; mantissa /= 1024., ++i) {}
-	mantissa = std::ceil(mantissa * 10.) / 10.;
-
-	auto size_type = "BKMGTPE"[i];
-	auto additional_data = size_type != 'B' ? "b" : "";
-	os << mantissa << size_type << additional_data;
-	return os;
-}
-
-};
 
 namespace InnerPrinter
 {
@@ -54,6 +35,12 @@ namespace InnerPrinter
 	extern inline std::string cut_quotas(const std::string& str);
 	extern void erase_sub(std::string& str, const std::string& sub);
 	extern std::string prepare_entry_val(const fs::directory_entry& dir_entry, unmutable options);
+
+	
+	extern uintmax_t ipow(uintmax_t base, uintmax_t exp);
+	static const uintmax_t sizes[] = { 1024, ipow(1024,2),ipow(1024,3) ,ipow(1024,4), ipow(1024,5),ipow(1024,6),ipow(1024,7),ipow(1024,8) };
+
+	extern std::string convert_bytes(uintmax_t file_size);
 	///
 
 
@@ -78,8 +65,9 @@ namespace InnerPrinter
 
 	//these functions are used to print element's properties
 	extern size_t compute_dir_elements_number(const std::string& path, bool rec);
-	extern void show_permissions(const std::string& entry);
+	extern void show_permissions(const std::string& entry, unmutable options);
 	extern void print_time(const std::string& time, unmutable options, const std::string& space);
+	extern std::string print_size(const std::string& dir_entry,unmutable options);
 	///
 
 

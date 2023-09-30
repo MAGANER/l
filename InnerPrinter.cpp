@@ -28,6 +28,54 @@ std::string InnerPrinter::prepare_entry_val(const fs::directory_entry& dir_entry
 
     return fs::path{entry_val}.string();
 };
+
+uintmax_t InnerPrinter::ipow(uintmax_t base, uintmax_t exp)
+{
+    uintmax_t result = 1;
+    for (;;)
+    {
+        if (exp & 1)
+            result *= base;
+        exp >>= 1;
+        if (!exp)
+            break;
+        base *= base;
+    }
+
+    return result;
+}
+std::string InnerPrinter::convert_bytes(uintmax_t file_size)
+{
+    const char* prefix = "BKMGTPE";
+
+    auto format = [](const std::string& str)
+    {
+        auto p = str.find('.');
+
+        //str contains integer number
+        if (p == std::string::npos)
+        {
+            return str;
+        }
+        else
+        {
+            return str.substr(0, p + 2);
+        }
+    };
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (file_size <= sizes[i])
+        {
+            if (i != 0)
+            {
+                auto size = (double)file_size / sizes[i - 1];
+                return format(std::to_string(size)) + prefix[i] + "iB";
+            }
+            else
+                return std::to_string(file_size) + "B";
+        }
+    }
+}
 void InnerPrinter::iterate_over_dir(unmutable options,
     const fn& iterate,
     const fn1& iterate_sorted)
@@ -111,10 +159,8 @@ size_t InnerPrinter::max_file_in_dir(const std::string& dir, unmutable options)
         {
             try
             {
-                auto f = fs::file_size(dir_entry);
-                std::stringstream buffer;
-                buffer << HumanReadable{f};
-                sizes.push_back(buffer.str().size());
+                auto size = convert_bytes(fs::file_size(dir_entry));
+                sizes.push_back(size.size());
             }
             catch (const std::exception& e)
             {
@@ -136,10 +182,8 @@ size_t InnerPrinter::max_file_in_dir_rec(const std::string& dir, unmutable optio
         {
             try
             {
-                auto f = fs::file_size(dir_entry);
-                std::stringstream buffer;
-                buffer << HumanReadable{f};
-                sizes.push_back(buffer.str().size());
+                auto size = convert_bytes(fs::file_size(dir_entry));
+                sizes.push_back(size.size());
             }
             catch (const std::exception& e)
             {
@@ -163,7 +207,7 @@ void InnerPrinter::print_time(const std::string& time, unmutable options, const 
 
     fmt::print("{}", time);
 }
-void InnerPrinter::show_permissions(const std::string& entry)
+void InnerPrinter::show_permissions(const std::string& entry, unmutable options)
 {
     auto p = fs::status(entry).permissions();
     using std::filesystem::perms;
@@ -223,4 +267,15 @@ size_t InnerPrinter::compute_dir_elements_number(const std::string& path, bool r
     else // the total number of elements of directory tree with path as top dir
         return std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_regular_file) +
         std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_directory);
+}
+std::string InnerPrinter::print_size(const std::string& dir_entry,unmutable options)
+{
+    auto f = fs::file_size(dir_entry);
+    auto size = convert_bytes(f);
+    if(PRINT_PURE)
+        fmt::print("{}", size);
+    else
+        fmt::print(FG(options->file_size_color) | BG(options->file_size_bg_color),"{}", size);
+
+    return size;
 }
