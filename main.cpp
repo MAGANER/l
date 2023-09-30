@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
 	//fixes problem i found on arch linux
 	//(on windows it is ignored and nothing is printed)
-	if (dexist(options->dir.c_str()))
+	if (!dexist(options->dir.c_str()))
 	{
 		fmt::print("Error: {} doesn't exist!", options->dir);
 		exit(-1);
