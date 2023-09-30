@@ -213,7 +213,11 @@ void InnerPrinter::show_permissions(const std::string& entry, unmutable options)
     using std::filesystem::perms;
     auto show = [=](char op, perms perm)
     {
-        fmt::print("{}", perms::none == (perm & p) ? '-' : op);
+        auto _p = perms::none == (perm & p) ? '-' : op;
+        if (PRINT_PURE)
+            fmt::print("{}", _p);
+        else
+            fmt::print(FG(options->perm_color) | BG(options->perm_bg_color), "{}", _p);
     };
 
     fmt::print(" ");

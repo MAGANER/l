@@ -91,7 +91,9 @@ struct Options
 		file_color = 35,
 		file_bg_color = 30,
 		file_size_color = 33,
-		file_size_bg_color = 30;
+		file_size_bg_color = 30,
+		perm_color = 34,
+		perm_bg_color = 30;
 
 	inline bool is_regime_showing_ok()
 	{
