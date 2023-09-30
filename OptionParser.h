@@ -115,7 +115,6 @@ struct Options
 	Options():
 		dir(fs::current_path().string())
 	{
-		flags[4] = true; //show as list by default
 		flags[2] = true; //show dirs by default
 		flags[3] = true; //show files by default
 		//l -d -f <=> l 
@@ -302,6 +301,10 @@ static Options* parse_args(int argc, char** argv)
 	{
 		_SET_FORMAT(true)
 	}
+
+	//if nothing is provided set list as default
+	if (!SHOW_AS_LIST && !SHOW_AS_TABLE && !SHOW_AS_TREE)
+		_SET_SHOW_AS_LIST(true)
 
 	//if only sort flag is passed, then set default sorting order
 	if (SORT && options->sorting_order.empty())
