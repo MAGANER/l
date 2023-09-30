@@ -1,5 +1,6 @@
 # l
 Alternative to ls classical application
+(I made everything i wanted, so i think i won't do anything with repo for now, but it's still open for contributions)
 
 # Output customization
 In ~/.config/ .lconfig file is created at first run of program<br>
