@@ -92,7 +92,7 @@ static void read_config_file(Options* options)
 					{
 						options->file_color = val;
 					}
-					else if (left == "file_bg_color=")
+					else if (left == "file_bg_color")
 					{
 						options->file_bg_color = val;
 					}
@@ -130,7 +130,7 @@ static void read_config_file(Options* options)
 					}
 					else
 					{
-						fmt::print("Error: {} is unrecognised option!",left);
+						fmt::println("Error: {} is unrecognised option!",left);
 						exit(-1);
 					}
 				}
