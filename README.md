@@ -4,7 +4,10 @@ Alternative to ls classical application
 # Output customization
 In ~/.config/ .lconfig file is created at first run of program<br>
 and it contains data about colors and number of element per line for table output.<br>
-P.S. Every option can be customized in future.
+
+## Default keys
+If you want to always show specific information, then you can edit your .bashrc file and simply add alias.<br>
+For example, you want to see total number of elements in directory everytime you run l - use ```alias l="l -n "```.
 
 # Note about regular expression support
 Let's imagine you want to list all txt files in current dir, so you might think to use ```l *.txt```<br>,
