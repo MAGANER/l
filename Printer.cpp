@@ -7,13 +7,13 @@ void Printer::print_as_list(const Options* const options)
 {
     namespace in = InnerPrinter;
     //this variable is required to compute indent between file name and its size
-    size_t max_size = options->should_compute_formating_size ?
-        options->recursive ? in::max_dir_size_rec(options->dir, options) :
+    size_t max_size = FORMAT ?
+        RECURSIVE ? in::max_dir_size_rec(options->dir, options) :
         in::max_dir_size(options->dir, options) : 1;
 
     //this variable is required to compute indent between file size and its permissions string
-    size_t max_size2 = options->should_compute_formating_size ?
-       options->recursive ? in::max_file_in_dir_rec(options->dir, options) :
+    size_t max_size2 = FORMAT ?
+       RECURSIVE ? in::max_file_in_dir_rec(options->dir, options) :
         in::max_file_in_dir(options->dir, options): 1;
 
     auto iterate = [&](const fs::directory_entry& dir_entry,
@@ -22,13 +22,13 @@ void Printer::print_as_list(const Options* const options)
     {          
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
-
+        
         //if it doesn't match the expression just break the execution
-        if (options->use_regex and !in::does_matches(entry_val, options->regex_val))
+        if (USE_REGEX and !in::does_matches(entry_val, options->regex_val))
             return;
-       
+
         //if shouldn't sort just print
-        if (options->sort)
+        if (SORT)
         {
             if (dir_entry.is_directory())
                 dirs.push_back(fs::directory_entry(dir_entry));
@@ -38,20 +38,21 @@ void Printer::print_as_list(const Options* const options)
         }
         else
         {
-            if (options->show_only_dirs && dir_entry.is_directory())
+            if (SHOW_DIRS_ONLY && dir_entry.is_directory())
             {
                 auto val = entry_val + "/";
                 InnerPrinter::print_d(val, options);
                 fmt::println("");
             }
-            else if (options->show_only_files && !dir_entry.is_directory())
+            else if (SHOW_FILES_ONLY && !dir_entry.is_directory())
             {
                 auto mult_val = max_size == 1 ? 1 : (max_size - entry_val.size()) + 1;
                 InnerPrinter::print_f(entry_val, options);
                 fmt::print("{}",PAD(mult_val));
 
+                
                 size_t file_size_str_size = 0;
-                if (options->show_file_size)
+                if (SHOW_FILE_SIZE)
                 {
                     //fmt::print("{}",in::HumanReadable{fs::file_size(dir_entry)});
                     try
@@ -66,17 +67,17 @@ void Printer::print_as_list(const Options* const options)
                         fmt::print("{}", e.what());
                     }
                 }
-                if (options->show_permissions)
+                if (SHOW_PERMISSION)
                 {
                     fmt::print("{}", SPACE_PAD);
                     in::show_permissions(dir_entry.path().string());
                 }
-                if (options->show_last_write_time)
+                if (SHOW_WRITE_TIME)
                 {
                     auto time = get_modification_file_time(dir_entry.path().string());
                     in::print_time(" mod time: " + time, options, SPACE_PAD);
                 }
-                if (options->show_creation_time)
+                if (SHOW_CREAT_TIME)
                 {
                     auto time = get_creation_file_time(dir_entry.path().string());
                     in::print_time(" cre time: " + time, options, SPACE_PAD);
@@ -103,7 +104,7 @@ void Printer::print_as_list(const Options* const options)
             fmt::print("{}", PAD(mult_val));
 
             size_t file_size_str_size = 0;
-            if (options->show_file_size && show_size)
+            if (SHOW_FILE_SIZE && show_size)
             {
                 auto f = fs::file_size(arg.path());
                 //fmt::print("{}", InnerPrinter::HumanReadable{f});
@@ -113,18 +114,18 @@ void Printer::print_as_list(const Options* const options)
                 file_size_str_size = buffer.str().size();
 
             }
-            if (options->show_permissions)
+            if (SHOW_PERMISSION)
             {
                 auto mult_val = max_size2 == 1 ? 1 : (max_size2 - file_size_str_size) + 1;
                 fmt::print("{}", PAD(mult_val));
                 InnerPrinter::show_permissions(arg.path().string());
             }
-            if (options->show_last_write_time)//if show_size is true, then functions is used to iterate over files
+            if (SHOW_WRITE_TIME)//if show_size is true, then functions is used to iterate over files
             {
                 auto time = get_modification_file_time(arg.path().string());
                 in::print_time(" mod time: " + time, options, SPACE_PAD);
             }
-            if (options->show_creation_time)
+            if (SHOW_CREAT_TIME)
             {
                 auto time = get_creation_file_time(arg.path().string());
                 in::print_time(" cre time: " + time, options, SPACE_PAD);
@@ -148,12 +149,12 @@ void Printer::print_as_list(const Options* const options)
     };
 
 
-    if (options->show_total_number)
+    if (TOTAL_NUMBER)
     {
-        auto n = InnerPrinter::compute_dir_elements_number(options->dir, options->recursive);
+        auto n = InnerPrinter::compute_dir_elements_number(options->dir, RECURSIVE);
         fmt::print(fmt::fg(fmt::terminal_color::white)| fmt::bg(fmt::terminal_color::black), "total {}\n", n);
     }
-    if (options->recursive)
+    if (RECURSIVE)
     {
         InnerPrinter::iterate_over_dir_recursively(options, iterate, iterate_sorted);
     }
@@ -174,10 +175,10 @@ void Printer::print_as_table(const Options* const options)
 
 
         //if you use regex, then break running in case entry val doesn't match regular expression
-        if (options->use_regex and !in::does_matches(entry_val, options->regex_val))
+        if (USE_REGEX and !in::does_matches(entry_val, options->regex_val))
             return;
 
-        if (options->sort)
+        if (SORT)
         {
             if (dir_entry.is_directory())
                 dirs.push_back(fs::directory_entry(dir_entry));
@@ -189,12 +190,12 @@ void Printer::print_as_table(const Options* const options)
             auto separator = counter == options->table_output_width ? '\n' : ' ';
             if (separator == '\n')counter = 0;
 
-            if (options->show_only_dirs && dir_entry.is_directory())
+            if (SHOW_DIRS_ONLY && dir_entry.is_directory())
             {
                 InnerPrinter::print_d(entry_val, options);
                 fmt::print("/{}", separator);
             }
-            else if (options->show_only_files && !dir_entry.is_directory())
+            else if (SHOW_FILES_ONLY && !dir_entry.is_directory())
             {
                 InnerPrinter::print_f(entry_val, options);
                 fmt::print("{}",separator);
@@ -219,7 +220,7 @@ void Printer::print_as_table(const Options* const options)
 
             auto entry_val = InnerPrinter::prepare_entry_val(arg, options);
             //if you use regex, then break running in case entry val doesn't match regular expression
-            if (options->use_regex and !InnerPrinter::does_matches(entry_val, options->regex_val))
+            if (USE_REGEX and !InnerPrinter::does_matches(entry_val, options->regex_val))
                 return;
 
             auto dir_val = entry_val + "/";
@@ -246,12 +247,12 @@ void Printer::print_as_table(const Options* const options)
     };
    
 
-    if (options->show_total_number)
+    if (TOTAL_NUMBER)
     {
-        auto n = InnerPrinter::compute_dir_elements_number(options->dir, options->recursive);
+        auto n = InnerPrinter::compute_dir_elements_number(options->dir, RECURSIVE);
         fmt::println("total {}", n);
     }
-    if (options->recursive)
+    if (RECURSIVE)
     {
         InnerPrinter::iterate_over_dir_recursively(options, iterate, iterate_sorted);
     }

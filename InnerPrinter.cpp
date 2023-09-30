@@ -18,8 +18,8 @@ void InnerPrinter::erase_sub(std::string& str, const std::string& sub)
 std::string InnerPrinter::prepare_entry_val(const fs::directory_entry& dir_entry, unmutable options)
 {
     auto entry_val = dir_entry.path().filename().string();
-    entry_val = options->recursive ? dir_entry.path().parent_path().string() + "/" + entry_val : entry_val;
-    if (options->recursive)
+    entry_val = RECURSIVE? dir_entry.path().parent_path().string() + "/" + entry_val : entry_val;
+    if (RECURSIVE)
     {
         erase_sub(entry_val, options->dir);
         if (entry_val[0] == '/' || entry_val[0] == '\\')
@@ -33,13 +33,12 @@ void InnerPrinter::iterate_over_dir(unmutable options,
     const fn1& iterate_sorted)
 {
     std::list<fs::directory_entry> dirs, files;
-
     for (const fs::directory_entry& dir_entry : fs::directory_iterator(options->dir))
     {
         iterate(dir_entry, dirs, files);
     }
 
-    if (options->sort)
+    if (SORT)
         iterate_sorted(dirs, files);
 }
 void InnerPrinter::iterate_over_dir_recursively(unmutable options,
@@ -53,12 +52,14 @@ void InnerPrinter::iterate_over_dir_recursively(unmutable options,
         iterate(dir_entry, dirs, files);
     }
 
-    if (options->sort)
+    if (SORT)
         iterate_sorted(dirs, files);
 }
 void InnerPrinter::print_d(const std::string& str, unmutable options)
 {
-    if (options->print_pure)
+    //print passed directory without colors if print_pure option is on,else print with colors from config file
+
+    if (PRINT_PURE)
     {
         fmt::print("{}", str);
     }
@@ -69,7 +70,9 @@ void InnerPrinter::print_d(const std::string& str, unmutable options)
 }
 void InnerPrinter::print_f(const std::string& str, unmutable options)
 {
-    if (options->print_pure)
+    //print passed file without colors if print_pure option is on,else print with colors from config file
+
+    if (PRINT_PURE)
     {
         fmt::print("{}", str);
     }
@@ -152,8 +155,8 @@ size_t InnerPrinter::max_file_in_dir_rec(const std::string& dir, unmutable optio
 
 void InnerPrinter::print_time(const std::string& time, unmutable options, const std::string& space)
 {
-    if ((options->show_permissions && !options->show_file_size) ||
-        (options->show_permissions && options->show_file_size))
+    if ((SHOW_PERMISSION && !SHOW_FILE_SIZE) ||
+        (SHOW_PERMISSION && SHOW_FILE_SIZE))
         fmt::print("  ");
     else
         fmt::print("{}", space);
@@ -213,10 +216,11 @@ size_t InnerPrinter::compute_dir_elements_number(const std::string& path, bool r
 
     using fp = bool (*)(const std::filesystem::path&);
 
-    if (!rec)
+    //returns the sum of counted number of files and directories
+    if (!rec)// the sum of counted number of files and subdirectories of current dir
         return std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_regular_file) +
         std::count_if(directory_iterator(path), directory_iterator{}, (fp)std::filesystem::is_directory);
-    else
+    else // the total number of elements of directory tree with path as top dir
         return std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_regular_file) +
         std::count_if(recursive_directory_iterator(path), recursive_directory_iterator{}, (fp)std::filesystem::is_directory);
 }

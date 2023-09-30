@@ -1,70 +1,115 @@
 #ifndef OPTION_PARSER_H
 #define OPTION_PARSER_H
+#include<unordered_map>
 #include<string>
 #include<filesystem>
 #include<regex>
+#include<array>
+#include<functional>
 #include"fmt/core.h"
+
+
+//these macroses are used to check options
+#define SORT            options->flags[0]
+#define RECURSIVE       options->flags[1]
+#define SHOW_DIRS_ONLY  options->flags[2]
+#define SHOW_FILES_ONLY options->flags[3]
+#define SHOW_AS_LIST    options->flags[4]
+#define SHOW_AS_TREE    options->flags[5]
+#define SHOW_AS_TABLE   options->flags[6]
+#define USE_REGEX       options->flags[7]
+#define TOTAL_NUMBER    options->flags[8]
+#define SHOW_FILE_SIZE  options->flags[9]
+#define SHOW_PERMISSION options->flags[10]
+#define SHOW_WRITE_TIME options->flags[11]
+#define SHOW_CREAT_TIME options->flags[12]
+#define SHOW_HELP       options->flags[13]
+#define PRINT_PURE      options->flags[14]
+#define FORMAT          options->flags[15]
+
+//bunch of special inner macroses for Options structure
+#define _SHOW_AS_LIST    flags[4]
+#define _SHOW_AS_TREE    flags[5]
+#define _SHOW_AS_TABLE   flags[6]
+//
+
+//these macroses are used to set associated values
+#define _SET_SORT(x)            options->flags[0]=x;
+#define _SET_RECURSIVE(x)       options->flags[1]=x;
+#define _SET_SHOW_DIRS_ONLY(x)  options->flags[2]=x;
+#define _SET_SHOW_FILES_ONLY(x) options->flags[3]=x;
+#define _SET_SHOW_AS_LIST(x)    options->flags[4]=x;
+#define _SET_SHOW_AS_TREE(x)    options->flags[5]=x;
+#define _SET_SHOW_AS_TABLE(x)   options->flags[6]=x;
+#define _SET_USE_REGEX(x)       options->flags[7]=x;
+#define _SET_TOTAL_NUMBER(x)    options->flags[8]=x;
+#define _SET_SHOW_FILE_SIZE(x)  options->flags[9]=x;
+#define _SET_SHOW_PERMISSION(x) options->flags[10]=x;
+#define _SET_SHOW_WRITE_TIME(x) options->flags[11]=x;
+#define _SET_SHOW_CREAT_TIME(x) options->flags[12]=x;
+#define _SET_SHOW_HELP(x)       options->flags[13]=x;
+#define _SET_PRINT_PURE(x)      options->flags[14]=x;
+#define _SET_FORMAT(x)          options->flags[15]=x;
+
+
 
 namespace fs = std::filesystem;
 struct Options
 {
-	bool sort, recursive;
-	std::string sorting_order; //fd or df
+	/*
+		Flags ids:
+		0  -s sort              
+		1  -r recursive
+		2  -d show only dirs
+		3  -f show only files
+		4  -l show as list
+		5  -t show as tree
+		6  -m show as table
+		7  (no key) use regex
+		8  -n show total number
+		9  -S show file size
+		10 -p show permissions
+		11 -T show last write time
+		12 -C show creation time
+		13 -h print help
+		14 -P print pure 
+		15 (no key) format
+	*/
+	std::array<bool, 16> flags{false};
 
-	bool show_only_dirs, show_only_files;
-	bool show_as_list, show_as_tree, show_as_table; //only one variable must be true
-	std::string dir; //it's current working directory by default
 
-	std::string regex_val;
-	bool use_regex; //if dir arguments contains regex than checks if directory entry matches with regex
+	std::string sorting_order, //fd or df
+				dir,           //it's current working directory by default
+				regex_val;     //match files with this string if user provided regular expression in path argument
 
-	size_t table_output_width = 4; //default value
 
-	bool show_total_number; // of elements in dir
+	size_t table_output_width = 4; //strings number in one line.(option of table output mode)
 
-	uint8_t dir_color = 94, dir_bg_color = 40, file_color = 34, file_bg_color = 40;
-
-	bool show_file_size,
-		show_permissions,
-		show_last_write_time,
-		show_creation_time;
-	bool should_compute_formating_size;
-
-	bool print_help;
-	bool print_pure;
+	//color values
+	uint8_t dir_color = 94, 
+		    dir_bg_color = 40, 
+		    file_color = 34, 
+	        file_bg_color = 40;
 
 	inline bool is_regime_showing_ok()
 	{
 		//check there is only one regime(function simply check only one variable is true)
-		return (show_as_list && !show_as_tree && !show_as_table) ||
-			   (!show_as_list && show_as_tree && !show_as_table) ||
-			   (!show_as_list && !show_as_tree && show_as_table);
+		return (_SHOW_AS_LIST && !_SHOW_AS_TREE && !_SHOW_AS_TABLE) ||
+			   (!_SHOW_AS_LIST && _SHOW_AS_TREE && !_SHOW_AS_TABLE) ||
+			   (!_SHOW_AS_LIST && !_SHOW_AS_TREE && _SHOW_AS_TABLE);
 	}
 	inline bool is_default_output_mode()
 	{
 		//user did not provided any flag, so output will be default
-		return !(show_as_list || show_as_tree || show_as_table);
+		return !(_SHOW_AS_LIST || _SHOW_AS_TREE || _SHOW_AS_TABLE);
 	}
 
 	Options():
-		show_only_dirs(true),
-		show_only_files(true),
-		show_as_list(false),
-		show_as_tree(false),
-		show_as_table(false),
-		sort(false),
-		recursive(false),
-		show_file_size(false),
-		show_permissions(false),
-		show_last_write_time(false),
-		show_creation_time(false),
-		should_compute_formating_size(false),
-		print_help(false),
-		print_pure(false),
-		dir(fs::current_path().string()),
-		use_regex(false),
-		show_total_number(false)
+		dir(fs::current_path().string())
 	{
+		flags[4] = true; //show as list by default
+		flags[2] = true; //show dirs by default
+		flags[3] = true; //show files by default
 		//l -d -f <=> l 
 		/*
 			so if you want to show directories and files, then just don't type any
@@ -86,23 +131,106 @@ static bool is_valid_regex(const std::string& regex)
 	}
 	return true;
 }
-static inline void disable_options(Options* options)
-{
-	//disable modes that aren't suitable to show information such as file sizes
-	// permissions, e.t.c
-	options->show_as_list = true;
-	options->show_as_tree = false;
-	options->show_as_table = false;
-}
+
+
+//option list contains all possible flags passed to the program
+static const auto option_list = std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a-P-n");
 static inline bool is_option(const std::string& arg)
 {
-	return std::string("-d-f-l-m-t-s-r-S-p-T-c-h-a-P-n").find(arg) != std::string::npos;
+	return option_list.find(arg) != std::string::npos;
 }
+
+
+//disable modes that aren't suitable to show information such as file sizes
+// permissions, e.t.c
+#define DISABLE_OPTIONS _SET_SHOW_AS_LIST(true) _SET_SHOW_AS_TREE(false) _SET_SHOW_AS_TABLE(false)
+
+//parsing table is made of key that is flag passed to the program and and lamda that is used to set option val
+static std::unordered_map<std::string, std::function<void(Options* options)>> get_parsing_table()
+{
+	std::unordered_map<std::string, std::function<void(Options* options)>> table;
+	table.insert_or_assign("-d", [&](Options* options)
+		{
+			_SET_SHOW_DIRS_ONLY(true)
+			_SET_SHOW_FILES_ONLY(false)
+			options->sorting_order += "d";
+		});
+	table.insert_or_assign("-f", [&](Options* options)
+	{
+			_SET_SHOW_DIRS_ONLY(false)
+			_SET_SHOW_FILES_ONLY(true)
+			options->sorting_order += "f";
+	});
+	table.insert_or_assign("-l", [&](Options* options)
+	{
+		_SET_SHOW_AS_LIST(true)
+	});
+	table.insert_or_assign("-t", [&](Options* options)
+	{
+		_SET_SHOW_AS_TREE(true)
+	});
+	table.insert_or_assign("-m", [&](Options* options)
+	{
+		_SET_SHOW_AS_TABLE(true)
+	});
+	table.insert_or_assign("-s", [&](Options* options)
+		{
+			_SET_SORT(true)
+		});
+	table.insert_or_assign("-r", [&](Options* options)
+	{
+		_SET_RECURSIVE(true)
+	});
+	table.insert_or_assign("-S", [&](Options* options)
+	{
+		_SET_SHOW_FILE_SIZE(true)
+		DISABLE_OPTIONS
+	});
+	table.insert_or_assign("-p", [&](Options* options)
+	{
+		_SET_SHOW_PERMISSION(true)
+		DISABLE_OPTIONS
+	});
+	table.insert_or_assign("-T", [&](Options* options)
+	{
+		_SET_SHOW_WRITE_TIME(true)
+		DISABLE_OPTIONS
+	});
+	table.insert_or_assign("-C", [&](Options* options)
+	{
+		_SET_SHOW_CREAT_TIME(true)
+		DISABLE_OPTIONS
+	});
+	table.insert_or_assign("-a", [&](Options* options)
+	{
+		_SET_SHOW_FILE_SIZE(true)
+		_SET_SHOW_CREAT_TIME(true)
+		_SET_SHOW_WRITE_TIME(true)
+		_SET_SHOW_PERMISSION(true)
+		DISABLE_OPTIONS
+	});
+	table.insert_or_assign("-h", [&](Options* options)
+	{
+		_SET_SHOW_HELP(true)
+	});
+	table.insert_or_assign("-P", [&](Options* options)
+	{
+		_SET_PRINT_PURE(true)
+	});
+	table.insert_or_assign("-n", [&](Options* options)
+	{
+		_SET_TOTAL_NUMBER(true)
+	});
+
+	return table;
+}
+
 static Options* parse_args(int argc, char** argv)
 {
+	static const auto parsing_table = get_parsing_table();
 	Options* options = new Options();
-	std::string args;
 
+	std::string args;//already added args
 	for (size_t i = 1; i < argc; i++)
 	{
 		//first, check argument wasn't added already
@@ -116,60 +244,10 @@ static Options* parse_args(int argc, char** argv)
 		}
 
 
-		if (arg == "-d")
+		if (parsing_table.contains(arg))
 		{
-			options->show_only_files = false;
-			options->sorting_order += "d";
-		}
-		else if (arg == "-f")
-		{
-			options->show_only_dirs = false;
-			options->sorting_order += "f";
-		}
-		else if (arg == "-l") options->show_as_list = true;
-		else if (arg == "-m") options->show_as_table = true;//m means matrix
-		else if (arg == "-t") options->show_as_tree = true;
-		else if (arg == "-s")options->sort = true;
-		else if (arg == "-r")options->recursive = true;
-		else if (arg == "-S")
-		{
-			options->show_file_size = true;
-			disable_options(options);
-		}
-		else if (arg == "-p")
-		{
-			options->show_permissions = true;
-			disable_options(options);
-		}
-		else if (arg == "-T")
-		{
-			options->show_last_write_time = true;
-			disable_options(options);
-		}
-		else if (arg == "-C")
-		{
-			options->show_creation_time = true;
-			disable_options(options);
-		}
-		else if (arg == "-a")
-		{
-			options->show_file_size       = true;
-			options->show_creation_time   = true;
-			options->show_last_write_time = true;
-			options->show_permissions     = true;
-			disable_options(options);
-		}
-		else if (arg == "-h")
-		{
-			options->print_help = true;
-		}
-		else if (arg == "-P")
-		{
-			options->print_pure = true;
-		}
-		else if (arg == "-n")
-		{
-			options->show_total_number = true;
+			auto fn = parsing_table.at(arg);
+			fn(options);
 		}
 		else if (fs::is_directory(arg))
 		{
@@ -190,7 +268,7 @@ static Options* parse_args(int argc, char** argv)
 				options->dir = arg.substr(0, end+1);
 				options->regex_val = arg.substr(end + 1);
 			}
-			options->use_regex = true;
+			_SET_USE_REGEX(true)
 		}
 		else
 		{
@@ -204,18 +282,21 @@ static Options* parse_args(int argc, char** argv)
 	if (args.find("-d") != std::string::npos &&
 		args.find("-f") != std::string::npos)
 	{
-		options->show_only_dirs = true;
-		options->show_only_files = true;
+		_SET_SHOW_DIRS_ONLY(true)
+		_SET_SHOW_FILES_ONLY(true)
 	}
 
-	if (options->show_permissions || 
-		options->show_file_size   || 
-		options->show_last_write_time ||
-		options->show_creation_time)
-		options->should_compute_formating_size = true;
+	//if program should print property info, then it should print it in correct, formatted way
+	if (SHOW_PERMISSION ||
+		SHOW_FILE_SIZE  ||
+		SHOW_WRITE_TIME ||
+		SHOW_CREAT_TIME)
+	{
+		_SET_FORMAT(true)
+	}
 
 	//if only sort flag is passed, then set default sorting order
-	if (options->sort && options->sorting_order.empty())
+	if (SORT && options->sorting_order.empty())
 		options->sorting_order = "df";
 
 	return options;

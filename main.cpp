@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
 
 	//it's common practice to print help page and then quit
-	if (options->print_help)
+	if (SHOW_HELP)
 	{
 		Printer::print_help();
 		delete options;
@@ -36,11 +36,11 @@ int main(int argc, char** argv)
 	}
 
 	//default mode is equal to list showing mode
-	if (options->is_default_output_mode() || options->show_as_list)
+	if (options->is_default_output_mode() || SHOW_AS_LIST)
 		Printer::print_as_list(options);
-	else if (options->show_as_table)
+	else if (SHOW_AS_TABLE)
 		Printer::print_as_table(options);
-	else if (options->show_as_tree)
+	else if (SHOW_AS_TREE)
 		Printer::print_as_tree(options);
 
 	delete options;
