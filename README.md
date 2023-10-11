@@ -1,6 +1,7 @@
 # l
 Alternative to ls classical application<br>
 (I made everything i wanted, so i think i won't do anything with repo for now, but it's still open for contributions)
+((So... I still work on this application, because i find out many useful features as time goes on))
 
 # Output customization
 In ~/.config/ .lconfig file is created at first run of program<br>
@@ -16,7 +17,7 @@ For example, you want to see total number of elements in directory everytime you
 git clone --recursive https://github.com/MAGANER/l.git
 mkdir build
 cd build
-cmake ../
+cmake ../ -DCMAKE_BUILD_TYPE=Release
 make
 chmod +x l
 ```
@@ -27,7 +28,7 @@ Download build from release page or follow next commands
 git clone --recursive https://github.com/MAGANER/l.git
 mkdir build
 cd build
-cmake ../
+cmake ../ -DCMAKE_BUILD_TYPE=Release
 #then you open .sln file and build this program
 ```
 
