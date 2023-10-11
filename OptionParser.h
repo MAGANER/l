@@ -232,7 +232,17 @@ static std::unordered_map<std::string, std::function<void(Options* options)>> ge
 
 	return table;
 }
-
+static inline bool is_file(const std::string & arg)
+{
+	return fs::is_block_file(arg)  ||
+		fs::is_character_file(arg) ||
+		fs::is_character_file(arg) ||
+		fs::is_regular_file(arg)   ||
+		fs::is_socket(arg)         ||
+		fs::is_fifo(arg)           ||
+		fs::is_symlink(arg)        ||
+		fs::is_other(arg);
+}
 static Options* parse_args(int argc, char** argv)
 {
 	static const auto parsing_table = get_parsing_table();
@@ -261,7 +271,7 @@ static Options* parse_args(int argc, char** argv)
 		{
 			options->dir = arg;
 		}
-		else if (is_valid_regex(arg) && !fs::is_regular_file(arg))
+		else if (is_valid_regex(arg) && !is_file(arg))
 		{
 			auto end = arg.find_last_of('/');
 			
@@ -278,7 +288,7 @@ static Options* parse_args(int argc, char** argv)
 			}
 			_SET_USE_REGEX(true)
 		}
-		else if (fs::is_regular_file(arg))
+		else if (is_file(arg))
 		{
 			//if show for single file, then disable all flags
 			for (size_t i = 0; i < 16; i++) options->flags[i] = false;
