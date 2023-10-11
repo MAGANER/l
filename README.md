@@ -57,7 +57,8 @@ otherwise it will show content of provided directory.<br>
 
 ### Particular examples
 ```$ l ~/notes/.*.txt -f``` print all txt files in notes dir<br>
-```$ l ../ -d ```<br>
+```$ l ../ -d ``` print only subdirectories<br>
+```$ l file``` print all properties related to file(creation/modification time, permissions, size<br>
 
 List of flags:<br>
 ```-d``` show only directories<br>
