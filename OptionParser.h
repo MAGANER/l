@@ -26,6 +26,7 @@
 #define SHOW_HELP       options->flags[13]
 #define PRINT_PURE      options->flags[14]
 #define FORMAT          options->flags[15]
+#define SHOW_FOR_SINGLE_FILE options->flags[16]
 
 //bunch of special inner macroses for Options structure
 #define _SHOW_AS_LIST    flags[4]
@@ -50,8 +51,7 @@
 #define _SET_SHOW_HELP(x)       options->flags[13]=x;
 #define _SET_PRINT_PURE(x)      options->flags[14]=x;
 #define _SET_FORMAT(x)          options->flags[15]=x;
-
-
+#define _SET_FOR_SINGLE_FILE(x) options->flags[16]=x;
 
 namespace fs = std::filesystem;
 struct Options
@@ -74,8 +74,9 @@ struct Options
 		13 -h print help
 		14 -P print pure 
 		15 (no key) format
+		16 (no key) show data for single file only
 	*/
-	std::array<bool, 16> flags{false};
+	std::array<bool, 17> flags{false};
 
 
 	std::string sorting_order, //fd or df
@@ -260,7 +261,7 @@ static Options* parse_args(int argc, char** argv)
 		{
 			options->dir = arg;
 		}
-		else if (is_valid_regex(arg))
+		else if (is_valid_regex(arg) && !fs::is_regular_file(arg))
 		{
 			auto end = arg.find_last_of('/');
 			
@@ -276,6 +277,22 @@ static Options* parse_args(int argc, char** argv)
 				options->regex_val = arg.substr(end + 1);
 			}
 			_SET_USE_REGEX(true)
+		}
+		else if (fs::is_regular_file(arg))
+		{
+			//if show for single file, then disable all flags
+			for (size_t i = 0; i < 16; i++) options->flags[i] = false;
+
+			//show all data about file
+			_SET_SHOW_AS_LIST(true)
+			_SET_SHOW_FILE_SIZE(true)
+			_SET_SHOW_CREAT_TIME(true)
+			_SET_SHOW_WRITE_TIME(true)
+			_SET_SHOW_PERMISSION(true)
+			_SET_SHOW_FILES_ONLY(true)
+
+			options->regex_val = arg;
+			_SET_FOR_SINGLE_FILE(true)
 		}
 		else
 		{

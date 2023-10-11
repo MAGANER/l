@@ -22,6 +22,13 @@ void Printer::print_as_list(const Options* const options)
     {          
         auto entry_val = in::prepare_entry_val(dir_entry, options);
 
+        //if you need to show data about single file, then break function
+        //execution in case passed entry val is not required
+        if (SHOW_FOR_SINGLE_FILE)
+        {
+            if (entry_val != options->regex_val)
+                return;
+        }
         
         //if it doesn't match the expression just break the execution
         if (USE_REGEX and !in::does_matches(entry_val, options->regex_val))
